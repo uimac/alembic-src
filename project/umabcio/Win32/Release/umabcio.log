@@ -1,0 +1,27 @@
+﻿  UMAbcCamera.cpp
+  UMAbcCurve.cpp
+  UMAbcMesh.cpp
+  UMAbcNurbsPatch.cpp
+  UMAbcObject.cpp
+  UMAbcPoint.cpp
+  UMAbcScene.cpp
+  UMAbcSoftwareIO.cpp
+  UMAbcXform.cpp
+  UMBox.cpp
+  UMPath.cpp
+  UMTime.cpp
+  UMCamera.cpp
+  UMCurve.cpp
+  UMLight.cpp
+  UMLine.cpp
+  UMMaterial.cpp
+  UMMesh.cpp
+  UMPoint.cpp
+  UMScene.cpp
+  UMShaderEntry.cpp
+..\..\src\umdraw\UMMesh.cpp(132): warning C4018: '>=' : signed と unsigned の数値を比較しようとしました。
+..\..\src\umdraw\UMMesh.cpp(133): warning C4018: '<=' : signed と unsigned の数値を比較しようとしました。
+  UMMain.cpp
+  コード生成しています。
+  コード生成が終了しました。
+  umabcio.vcxproj -> D:\umabcio\out/Win32/Release\umabcio.exe

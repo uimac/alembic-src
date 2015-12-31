@@ -1,0 +1,13 @@
+{
+  "name": "umabcio",
+  "version": "0.0.1",
+  "description": "alembic io",
+  "main": "server.js",
+  "private": true,
+  "author": "Kazuma Hatta",
+  "license": "MIT",
+  "scripts": {
+    "install": "node-gyp rebuild --msvs_version=2013"
+  },
+  "gypfile": true
+}

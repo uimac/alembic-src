@@ -1,0 +1,21 @@
+depends:
+
+ilmbase2 - Imath.lib
+ilmbase2 - IlmThread.lib
+ilmbase2 - Iex.lib
+ilmbase2 - Half.lib
+hdf5 1.8.11 - libhdf5.lib
+hdf5 1.8.11 - libhdf5_hl.lib
+
+
+libs:
+AlembicAbc.lib
+AlembicAbcCollection.lib
+AlembicAbcCoreAbstract.lib
+AlembicAbcCoreFactory.lib
+AlembicAbcCoreHDF5.lib
+AlembicAbcCoreOgawa.lib
+AlembicAbcGeom.lib
+AlembicAbcMaterial.lib
+AlembicOgawa.lib
+AlembicUtil.lib

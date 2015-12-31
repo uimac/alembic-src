@@ -1,0 +1,29 @@
+﻿cl : コマンド ライン warning D9030: '/Gm' はマルチプロセシングと互換性がありません。/MP スイッチを無視します
+  UMMain.cpp
+  UMShaderEntry.cpp
+  UMScene.cpp
+  UMPoint.cpp
+  UMMesh.cpp
+d:\umabcio\src\umdraw\ummesh.cpp(132): warning C4018: '>=' : signed と unsigned の数値を比較しようとしました。
+d:\umabcio\src\umdraw\ummesh.cpp(133): warning C4018: '<=' : signed と unsigned の数値を比較しようとしました。
+  UMMaterial.cpp
+  UMLine.cpp
+  UMLight.cpp
+  UMCurve.cpp
+  UMCamera.cpp
+  UMTime.cpp
+  UMPath.cpp
+  UMBox.cpp
+  UMAbcXform.cpp
+  UMAbcSoftwareIO.cpp
+  UMAbcScene.cpp
+  UMAbcPoint.cpp
+  UMAbcObject.cpp
+  UMAbcNurbsPatch.cpp
+  UMAbcMesh.cpp
+  コードを生成中...
+  コンパイル中...
+  UMAbcCurve.cpp
+  UMAbcCamera.cpp
+  コードを生成中...
+  umabcio.vcxproj -> D:\umabcio\out/Win32/Debug\umabcio.exe
