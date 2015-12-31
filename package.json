@@ -2,8 +2,7 @@
   "name": "umabcio",
   "version": "0.0.1",
   "description": "alembic io",
-  "main": "server.js",
-  "private": true,
+  "main": "index.js",
   "author": "Kazuma Hatta",
   "license": "MIT",
   "scripts": {
