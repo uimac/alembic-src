@@ -6,7 +6,7 @@
   "author": "Kazuma Hatta",
   "license": "MIT",
   "scripts": {
-    "install": "node-gyp rebuild --msvs_version=2013"
+    "install": "node-gyp rebuild --target=0.36.2 --arch=x64 --dist-url=https://atom.io/download/atom-shell --msvs_version=2013"
   },
   "gypfile": true
 }

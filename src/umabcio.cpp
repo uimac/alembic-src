@@ -128,14 +128,14 @@ public:
 		
 		Local<Object> result = Object::New(isolate);
 
-		umabc::UMAbcMeshPtr mesh = std::static_pointer_cast<umabc::UMAbcMesh>(scene->find_object(object_path));
+		umabc::UMAbcMeshPtr mesh = std::dynamic_pointer_cast<umabc::UMAbcMesh>(scene->find_object(object_path));
 		if (mesh) {
 			if (mesh->vertex_size() > 0)
 			{
 				Local<ArrayBuffer> vertices = v8::ArrayBuffer::New(isolate, mesh->vertex_size() * sizeof(Imath::V3f));
 				ArrayBuffer::Contents vcontents = vertices->GetContents();
 				memcpy(vcontents.Data(), mesh->vertex(), mesh->vertex_size() * sizeof(Imath::V3f));
-				result->Set(String::NewFromUtf8(isolate, "vertex"), Float32Array::New(vertices, 0, mesh->vertex_size()));
+				result->Set(String::NewFromUtf8(isolate, "vertex"), Float32Array::New(vertices, 0, mesh->vertex_size() * 3));
 			}
 
 			if (mesh->normals().size() > 0)
@@ -143,15 +143,15 @@ public:
 				Local<ArrayBuffer> normals = v8::ArrayBuffer::New(isolate, mesh->normals().size() * sizeof(Imath::V3f));
 				ArrayBuffer::Contents ncontents = normals->GetContents();
 				memcpy(ncontents.Data(), &mesh->normals()[0], mesh->normals().size() * sizeof(Imath::V3f));
-				result->Set(String::NewFromUtf8(isolate, "normal"), Float32Array::New(normals, 0, mesh->normals().size()));
+				result->Set(String::NewFromUtf8(isolate, "normal"), Float32Array::New(normals, 0, mesh->normals().size() * 3));
 			}
 
 			if (mesh->triangle_index().size() > 0)
 			{
-				Local<ArrayBuffer> indices = v8::ArrayBuffer::New(isolate, mesh->triangle_index().size() * sizeof(umbase::UMVec3ui));
-				ArrayBuffer::Contents ncontents = indices->GetContents();
-				memcpy(ncontents.Data(), &mesh->triangle_index()[0], mesh->triangle_index().size() * sizeof(umbase::UMVec3ui));
-				result->Set(String::NewFromUtf8(isolate, "index"), Int32Array::New(indices, 0, mesh->triangle_index().size()));
+				Local<ArrayBuffer> indices = v8::ArrayBuffer::New(isolate, mesh->triangle_index().size() * sizeof(umbase::UMVec3i));
+				ArrayBuffer::Contents icontents = indices->GetContents();
+				memcpy(icontents.Data(), &mesh->triangle_index()[0], mesh->triangle_index().size() * sizeof(umbase::UMVec3i));
+				result->Set(String::NewFromUtf8(isolate, "index"), Int32Array::New(indices, 0, mesh->triangle_index().size() * 3));
 			}
 
 			if (mesh->uv_size() > 0) 
@@ -159,7 +159,7 @@ public:
 				Local<ArrayBuffer> uvs = v8::ArrayBuffer::New(isolate, mesh->uv_size() * sizeof(Imath::V2f));
 				ArrayBuffer::Contents uvcontents = uvs->GetContents();
 				memcpy(uvcontents.Data(), mesh->uv(), mesh->uv_size() * sizeof(Imath::V2f));
-				result->Set(String::NewFromUtf8(isolate, "uv"), Float32Array::New(uvs, 0, mesh->uv_size()));
+				result->Set(String::NewFromUtf8(isolate, "uv"), Float32Array::New(uvs, 0, mesh->uv_size() * 2));
 			}
 		}
 		args.GetReturnValue().Set(result);
