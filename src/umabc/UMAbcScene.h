@@ -110,7 +110,7 @@ public:
 	/**
 	* get path list
 	*/
-	std::vector<std::string> object_path_list();
+	std::vector<std::string> mesh_path_list();
 
 	/**
 	 * find object

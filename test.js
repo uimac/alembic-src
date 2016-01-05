@@ -11,7 +11,7 @@
 		console.log("hogehoge");
 		console.log(abcio);
 		abcio.load(file);
-		path_list = abcio.get_object_path_list(file);
+		path_list = abcio.get_mesh_path_list(file);
 		console.log(path_list);
 		console.log(abcio.get_total_time(file));
 		abcio.set_time(file, 3000);

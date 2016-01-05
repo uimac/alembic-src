@@ -107,10 +107,10 @@ public:
 		scene->root_object()->set_current_time(static_cast<unsigned long>(time), true);
 	}
 
-	void get_object_path_list(const FunctionCallbackInfo<Value>& args) {
+	void get_mesh_path_list(const FunctionCallbackInfo<Value>& args) {
 		Isolate* isolate = Isolate::GetCurrent();
 		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
-		std::vector<std::string> path_list = scene->object_path_list();
+		std::vector<std::string> path_list = scene->mesh_path_list();
 		const int list_size = static_cast<int>(path_list.size());
 		Local<Array> result = Array::New(isolate, list_size);
 		for (int i = 0; i < list_size; ++i) {
@@ -161,6 +161,28 @@ public:
 				memcpy(uvcontents.Data(), mesh->uv(), mesh->uv_size() * sizeof(Imath::V2f));
 				result->Set(String::NewFromUtf8(isolate, "uv"), Float32Array::New(uvs, 0, mesh->uv_size() * 2));
 			}
+
+			{
+				const UMMat44d& global_transform = mesh->global_transform();
+				Local<Array> trans = Array::New(isolate, 16);
+				for (int i = 0; i < 4; ++i) {
+					for (int k = 0; k < 4; ++k) {
+						trans->Set(i * 4 + k, Number::New(isolate, global_transform[i][k]));
+					}
+				}
+				result->Set(String::NewFromUtf8(isolate, "global_transform"), trans);
+			}
+
+			{
+				const UMMat44d& local_transform = mesh->local_transform();
+				Local<Array> trans = Array::New(isolate, 16);
+				for (int i = 0; i < 4; ++i) {
+					for (int k = 0; k < 4; ++k) {
+						trans->Set(i * 4 + k, Number::New(isolate, local_transform[i][k]));
+					}
+				}
+				result->Set(String::NewFromUtf8(isolate, "local_transform"), trans);
+			}
 		}
 		args.GetReturnValue().Set(result);
 	}
@@ -203,9 +225,9 @@ static void set_time(const FunctionCallbackInfo<Value>& args)
 	UMAbcIO::instance().set_time(args);
 }
 
-static void get_object_path_list(const FunctionCallbackInfo<Value>& args)
+static void get_mesh_path_list(const FunctionCallbackInfo<Value>& args)
 {
-	UMAbcIO::instance().get_object_path_list(args);
+	UMAbcIO::instance().get_mesh_path_list(args);
 }
 
 static void get_mesh(const FunctionCallbackInfo<Value>& args)
@@ -225,7 +247,7 @@ void Init(Handle<Object> exports) {
 	NODE_SET_METHOD(exports, "get_total_time", get_total_time);
 	NODE_SET_METHOD(exports, "get_time", get_time);
 	NODE_SET_METHOD(exports, "set_time", set_time);
-	NODE_SET_METHOD(exports, "get_object_path_list", get_object_path_list);
+	NODE_SET_METHOD(exports, "get_mesh_path_list", get_mesh_path_list);
 	NODE_SET_METHOD(exports, "get_mesh", get_mesh);
 }
 

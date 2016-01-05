@@ -154,7 +154,7 @@ public:
 	/**
 	* get name list
 	*/
-	void object_path_list(std::vector<std::string>& name_list)
+	void mesh_path_list(std::vector<std::string>& name_list)
 	{
 		if (object_)
 		{
@@ -164,8 +164,10 @@ public:
 				++it)
 			{
 				std::string object_path = "/" + (*it)->name();
-				get_object_path_list_recursive(object_path, name_list, *it);
-				name_list.push_back(object_path);
+				if (UMAbcMeshPtr mesh = std::dynamic_pointer_cast<UMAbcMesh>(*it)) {
+					name_list.push_back(object_path);
+				}
+				get_mesh_path_list_recursive(object_path, name_list, *it);
 			}
 		}
 	}
@@ -230,14 +232,17 @@ private:
 		}
 	}
 
-	void get_object_path_list_recursive(std::string& object_path, std::vector<std::string>& name_list, UMAbcObjectPtr object)
+	void get_mesh_path_list_recursive(std::string& object_path, std::vector<std::string>& name_list, UMAbcObjectPtr object)
 	{
 		for (UMAbcObjectList::const_iterator it = object->children().begin();
 			it != object->children().end();
 			++it)
 		{
-			object_path = object_path + "/" + (*it)->name();
-			get_object_path_list_recursive(object_path, name_list, *it);
+			std::string path = object_path + "/" + (*it)->name();
+			if (UMAbcMeshPtr mesh = std::dynamic_pointer_cast<UMAbcMesh>(*it)) {
+				name_list.push_back(path);
+			}
+			get_mesh_path_list_recursive(path, name_list, *it);
 		}
 	}
 
@@ -250,8 +255,8 @@ private:
 			it != object->children().end();
 			++it)
 		{
-			object_path = object_path + "/" + (*it)->name();
-			if (UMAbcObjectPtr obj = find_object_recursive(object_path, target, *it)) {
+			std::string path = object_path + "/" + (*it)->name();
+			if (UMAbcObjectPtr obj = find_object_recursive(path, target, *it)) {
 				return obj;
 			}
 		}
@@ -388,10 +393,10 @@ std::vector<std::string> UMAbcScene::object_name_list()
 /**
 * get path list
 */
-std::vector<std::string> UMAbcScene::object_path_list()
+std::vector<std::string> UMAbcScene::mesh_path_list()
 {
 	std::vector<std::string> name_list;
-	impl_->object_path_list(name_list);
+	impl_->mesh_path_list(name_list);
 	return name_list;
 }
 
