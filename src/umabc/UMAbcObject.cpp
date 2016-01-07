@@ -116,16 +116,6 @@ namespace umabc
 		UMAbcObjectList& mutable_children() { return children_; }
 
 		/**
-		* get parent
-		*/
-		UMAbcObjectPtr parent() { return parent_object_.lock(); }
-
-		void set_parent_object(UMAbcObjectPtr parent)
-		{
-			parent_object_ = parent;
-		}
-
-		/**
 		* get name
 		*/
 		const std::string& name() const { return name_; }
@@ -188,7 +178,7 @@ bool UMAbcObject::Impl::init(bool recursive, UMAbcObjectPtr parent)
 			IPolyMeshPtr mesh(new IPolyMesh(*object_, ohead.getName()));
 			child = UMAbcMesh::create(mesh);
 			UMAbcObjectPtr ref = parent;
-			child->set_parent_object(parent);
+			child->set_parent(parent);
 			children_.push_back(child);
 		}
 		else if (IPoints::matches(ohead))
@@ -196,7 +186,7 @@ bool UMAbcObject::Impl::init(bool recursive, UMAbcObjectPtr parent)
 			IPointsPtr points(new IPoints(*object_, ohead.getName()));
 			child = UMAbcPoint::create(points);
 			UMAbcObjectPtr ref = parent;
-			child->set_parent_object(parent);
+			child->set_parent(parent);
 			children_.push_back(child);
 		}
 		else if (ICurves::matches(ohead))
@@ -204,14 +194,14 @@ bool UMAbcObject::Impl::init(bool recursive, UMAbcObjectPtr parent)
 			ICurvesPtr curves(new ICurves(*object_, ohead.getName()));
 			child = UMAbcCurve::create(curves);
 			UMAbcObjectPtr ref = parent;
-			child->set_parent_object(parent);
+			child->set_parent(parent);
 			children_.push_back(child);
 		}
 		else if (INuPatch::matches(ohead))
 		{
 			INuPatchPtr patch(new INuPatch(*object_, ohead.getName()));
 			child = UMAbcNurbsPatch::create(patch);
-			child->set_parent_object(parent);
+			child->set_parent(parent);
 			children_.push_back(child);
 		}
 		else if (IXform::matches(ohead))
@@ -219,7 +209,7 @@ bool UMAbcObject::Impl::init(bool recursive, UMAbcObjectPtr parent)
 			IXformPtr xform(new IXform(*object_, ohead.getName()));
 			child = UMAbcXform::create(xform);
 			UMAbcObjectPtr ref = parent;
-			child->set_parent_object(parent);
+			child->set_parent(parent);
 			children_.push_back(child);
 		}
 		else if (ICamera::matches(ohead))
@@ -227,7 +217,7 @@ bool UMAbcObject::Impl::init(bool recursive, UMAbcObjectPtr parent)
 			ICameraPtr camera(new ICamera(*object_, ohead.getName()));
 			child = UMAbcCamera::create(camera);
 			UMAbcObjectPtr ref = parent;
-			child->set_parent_object(parent);
+			child->set_parent(parent);
 			children_.push_back(child);
 		}
 		// recursive
@@ -376,7 +366,10 @@ unsigned long UMAbcObject::max_time() const
 */
 void UMAbcObject::set_current_time(unsigned long time, bool recursive)
 {
-	return impl_->set_current_time(time, recursive);
+	if (parent()) {
+		mutable_global_transform() = local_transform() *  parent()->mutable_global_transform();
+	}
+	impl_->set_current_time(time, recursive);
 }
 
 /**
@@ -461,14 +454,6 @@ UMAbcObjectList& UMAbcObject::mutable_children()
 }
 
 /**
-* get parent
-*/
-UMAbcObjectPtr UMAbcObject::parent()
-{
-	return impl_->parent();
-}
-
-/**
 * get name
 */
 const std::string& UMAbcObject::name() const
@@ -511,11 +496,6 @@ UMBox& UMAbcObject::mutable_no_inherit_box()
 UMAbcObjectPtr UMAbcObject::self_reference()
 {
 	return impl_->self_reference();
-}
-
-void UMAbcObject::set_parent_object(UMAbcObjectPtr parent)
-{
-	impl_->set_parent_object(parent);
 }
 
 } // umabc

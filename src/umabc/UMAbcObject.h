@@ -118,11 +118,6 @@ public:
 	UMAbcObjectList& mutable_children();
 
 	/**
-	 * get parent
-	 */
-	UMAbcObjectPtr parent();
-
-	/**
 	 * get name
 	 */
 	const std::string& name() const;
@@ -131,8 +126,6 @@ protected:
 	virtual UMAbcObjectPtr self_reference();
 
 	UMAbcObject(IObjectPtr object);
-
-	void set_parent_object(UMAbcObjectPtr parent);
 
 	/**
 	* get minumum time

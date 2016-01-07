@@ -15,7 +15,6 @@
 #include <Alembic/AbcCoreFactory/All.h>
 #include "UMAbcConvert.h"
 
-
 namespace umabc
 {
 	
@@ -38,7 +37,7 @@ namespace umabc
 		* @param [in] recursive do children recursively
 		* @retval succsess or fail
 		*/
-		virtual bool init(bool recursive);
+		bool init_(bool recursive);
 
 		/**
 		* set current time
@@ -110,18 +109,18 @@ UMAbcXform::~UMAbcXform() {}
 /**
  * initialize
  */
-bool UMAbcXform::Impl::init(bool recursive)
+bool UMAbcXform::Impl::init_(bool recursive)
 {
-	if (!is_valid()) return false;
+ 	if (!is_valid() || xform_->getSchema().isConstantIdentity()) return false;
 	
-	mutable_local_transform().identity();
+	self_reference()->mutable_local_transform().identity();
 	static_matrix_.identity();
 
 	if (xform_->getSchema().isConstant())
 	{
-		static_matrix_ = 
+		static_matrix_ =
 			UMAbcConvert::imath_mat_to_um(
-				xform_->getSchema().getValue().getMatrix());
+			xform_->getSchema().getValue().getMatrix());
 	}
 	else
 	{
@@ -144,27 +143,26 @@ bool UMAbcXform::Impl::init(bool recursive)
 void UMAbcXform::Impl::set_current_time(unsigned long time, bool recursive)
 {
 	if (!is_valid()) {
-		mutable_local_transform().identity();
+		self_reference()->mutable_local_transform().identity();
 		return;
 	}
 	
-	if (min_time() < time && time < max_time())
+	if (min_time() <= time && time <= max_time())
 	{
 		ISampleSelector selector(time / 1000.0, ISampleSelector::kNearIndex);
 		is_inherit_ = xform_->getSchema().getInheritsXforms(selector);
 
 		if (xform_->getSchema().isConstant())
 		{
-			mutable_local_transform() = static_matrix_;
+			self_reference()->mutable_local_transform() = static_matrix_;
 		}
 		else
 		{
-			mutable_local_transform() = 
+			self_reference()->mutable_local_transform() =
 				UMAbcConvert::imath_mat_to_um(
 					xform_->getSchema().getValue(selector).getMatrix());
 		}
 	}
-	UMAbcObject::set_current_time(time, false);
 }
 
 /**
@@ -184,8 +182,7 @@ void UMAbcXform::Impl::update_box(bool recursive)
 		if (!child->box().is_empty())
 		{
 			const UMBox& child_box = child->box();
-			child_box.transformed(local_transform());
-			mutable_global_transform() = mutable_global_transform() * local_transform();
+			child_box.transformed(self_reference()->local_transform());
 
 			if (!child_box.is_empty())
 			{
@@ -222,7 +219,7 @@ void UMAbcXform::Impl::update_box(bool recursive)
 */
 bool UMAbcXform::init(bool recursive, UMAbcObjectPtr parent)
 {
-	impl_->init(recursive);
+	impl_->init_(recursive);
 	return UMAbcObject::init(recursive, parent);
 }
 

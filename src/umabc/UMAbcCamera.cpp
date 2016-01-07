@@ -116,7 +116,7 @@ void UMAbcCamera::Impl::set_current_time(unsigned long time, bool recursive)
 
 	if (umcamera_)
 	{
-		UMAbcObjectPtr p = self_reference()->parent();
+		UMAbcNodePtr p = self_reference()->parent();
 		UMMat44d mat = p->local_transform();
 		UMMat44d gmat = p->global_transform();
 
