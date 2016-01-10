@@ -84,7 +84,37 @@ public:
 	 * update point all
 	 */
 	void update_point_all();
-	
+
+	/**
+	* get position
+	*/
+	const Imath::V3f * positions() const;
+
+	/**
+	* get position size
+	*/
+	unsigned int position_size() const;
+
+	/**
+	* get points
+	*/
+	const Imath::V3f * normals() const;
+
+	/**
+	* get normal size
+	*/
+	unsigned int normal_size() const;
+
+	/**
+	* get points
+	*/
+	const Imath::V3f * colors() const;
+
+	/**
+	* get color size
+	*/
+	unsigned int color_size() const;
+
 	/**
 	 * get opengl point
 	 */

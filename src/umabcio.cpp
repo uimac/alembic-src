@@ -17,6 +17,7 @@ namespace AbcA = Alembic::AbcCoreAbstract;
 #include "UMAbcScene.h"
 #include "UMAbcObject.h"
 #include "UMAbcMesh.h"
+#include "UMAbcPoint.h"
 
 using namespace v8;
 
@@ -119,13 +120,24 @@ public:
 		args.GetReturnValue().Set(result);
 	}
 
+	void get_point_path_list(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = Isolate::GetCurrent();
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
+		std::vector<std::string> path_list = scene->point_path_list();
+		const int list_size = static_cast<int>(path_list.size());
+		Local<Array> result = Array::New(isolate, list_size);
+		for (int i = 0; i < list_size; ++i) {
+			result->Set(i, String::NewFromUtf8(isolate, path_list[i].c_str()));
+		}
+		args.GetReturnValue().Set(result);
+	}
+
 	void get_mesh(const FunctionCallbackInfo<Value>& args) {
 		Isolate* isolate = Isolate::GetCurrent();
 		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
 
 		v8::String::Utf8Value utf8path(args[1]->ToString());
 		std::string object_path(*utf8path);
-		
 		Local<Object> result = Object::New(isolate);
 
 		umabc::UMAbcMeshPtr mesh = std::dynamic_pointer_cast<umabc::UMAbcMesh>(scene->find_object(object_path));
@@ -133,32 +145,32 @@ public:
 			if (mesh->vertex_size() > 0)
 			{
 				Local<ArrayBuffer> vertices = v8::ArrayBuffer::New(isolate, mesh->vertex_size() * sizeof(Imath::V3f));
-				ArrayBuffer::Contents vcontents = vertices->GetContents();
-				memcpy(vcontents.Data(), mesh->vertex(), mesh->vertex_size() * sizeof(Imath::V3f));
+				ArrayBuffer::Contents contents = vertices->GetContents();
+				memcpy(contents.Data(), mesh->vertex(), mesh->vertex_size() * sizeof(Imath::V3f));
 				result->Set(String::NewFromUtf8(isolate, "vertex"), Float32Array::New(vertices, 0, mesh->vertex_size() * 3));
 			}
 
 			if (mesh->normals().size() > 0)
 			{
 				Local<ArrayBuffer> normals = v8::ArrayBuffer::New(isolate, mesh->normals().size() * sizeof(Imath::V3f));
-				ArrayBuffer::Contents ncontents = normals->GetContents();
-				memcpy(ncontents.Data(), &mesh->normals()[0], mesh->normals().size() * sizeof(Imath::V3f));
+				ArrayBuffer::Contents contents = normals->GetContents();
+				memcpy(contents.Data(), &mesh->normals()[0], mesh->normals().size() * sizeof(Imath::V3f));
 				result->Set(String::NewFromUtf8(isolate, "normal"), Float32Array::New(normals, 0, mesh->normals().size() * 3));
 			}
 
 			if (mesh->triangle_index().size() > 0)
 			{
 				Local<ArrayBuffer> indices = v8::ArrayBuffer::New(isolate, mesh->triangle_index().size() * sizeof(umbase::UMVec3i));
-				ArrayBuffer::Contents icontents = indices->GetContents();
-				memcpy(icontents.Data(), &mesh->triangle_index()[0], mesh->triangle_index().size() * sizeof(umbase::UMVec3i));
+				ArrayBuffer::Contents contents = indices->GetContents();
+				memcpy(contents.Data(), &mesh->triangle_index()[0], mesh->triangle_index().size() * sizeof(umbase::UMVec3i));
 				result->Set(String::NewFromUtf8(isolate, "index"), Int32Array::New(indices, 0, mesh->triangle_index().size() * 3));
 			}
 
 			if (mesh->uv_size() > 0) 
 			{
 				Local<ArrayBuffer> uvs = v8::ArrayBuffer::New(isolate, mesh->uv_size() * sizeof(Imath::V2f));
-				ArrayBuffer::Contents uvcontents = uvs->GetContents();
-				memcpy(uvcontents.Data(), mesh->uv(), mesh->uv_size() * sizeof(Imath::V2f));
+				ArrayBuffer::Contents contents = uvs->GetContents();
+				memcpy(contents.Data(), mesh->uv(), mesh->uv_size() * sizeof(Imath::V2f));
 				result->Set(String::NewFromUtf8(isolate, "uv"), Float32Array::New(uvs, 0, mesh->uv_size() * 2));
 			}
 
@@ -175,6 +187,66 @@ public:
 
 			{
 				const UMMat44d& local_transform = mesh->local_transform();
+				Local<Array> trans = Array::New(isolate, 16);
+				for (int i = 0; i < 4; ++i) {
+					for (int k = 0; k < 4; ++k) {
+						trans->Set(i * 4 + k, Number::New(isolate, local_transform[i][k]));
+					}
+				}
+				result->Set(String::NewFromUtf8(isolate, "local_transform"), trans);
+			}
+		}
+		args.GetReturnValue().Set(result);
+	}
+
+	void get_point(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = Isolate::GetCurrent();
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
+
+		v8::String::Utf8Value utf8path(args[1]->ToString());
+		std::string object_path(*utf8path);
+		Local<Object> result = Object::New(isolate);
+
+		umabc::UMAbcPointPtr point = std::dynamic_pointer_cast<umabc::UMAbcPoint>(scene->find_object(object_path));
+		if (point)
+		{
+			if (point->position_size() > 0)
+			{
+				Local<ArrayBuffer> positions = v8::ArrayBuffer::New(isolate, point->position_size() * sizeof(Imath::V3f));
+				ArrayBuffer::Contents contents = positions->GetContents();
+				memcpy(contents.Data(), point->positions(), point->position_size() * sizeof(Imath::V3f));
+				result->Set(String::NewFromUtf8(isolate, "position"), Float32Array::New(positions, 0, point->position_size() * 3));
+			}
+
+			if (point->normal_size() > 0)
+			{
+				Local<ArrayBuffer> normals = v8::ArrayBuffer::New(isolate, point->normal_size() * sizeof(Imath::V3f));
+				ArrayBuffer::Contents contents = normals->GetContents();
+				memcpy(contents.Data(), &point->normals()[0], point->normal_size() * sizeof(Imath::V3f));
+				result->Set(String::NewFromUtf8(isolate, "normal"), Float32Array::New(normals, 0, point->normal_size() * 3));
+			}
+
+			if (point->color_size() > 0)
+			{
+				Local<ArrayBuffer> normals = v8::ArrayBuffer::New(isolate, point->color_size() * sizeof(Imath::V3f));
+				ArrayBuffer::Contents contents = normals->GetContents();
+				memcpy(contents.Data(), &point->colors()[0], point->color_size() * sizeof(Imath::V3f));
+				result->Set(String::NewFromUtf8(isolate, "color"), Float32Array::New(normals, 0, point->color_size() * 3));
+			}
+
+			{
+				const UMMat44d& global_transform = point->global_transform();
+				Local<Array> trans = Array::New(isolate, 16);
+				for (int i = 0; i < 4; ++i) {
+					for (int k = 0; k < 4; ++k) {
+						trans->Set(i * 4 + k, Number::New(isolate, global_transform[i][k]));
+					}
+				}
+				result->Set(String::NewFromUtf8(isolate, "global_transform"), trans);
+			}
+
+			{
+				const UMMat44d& local_transform = point->local_transform();
 				Local<Array> trans = Array::New(isolate, 16);
 				for (int i = 0; i < 4; ++i) {
 					for (int k = 0; k < 4; ++k) {
@@ -230,9 +302,19 @@ static void get_mesh_path_list(const FunctionCallbackInfo<Value>& args)
 	UMAbcIO::instance().get_mesh_path_list(args);
 }
 
+static void get_point_path_list(const FunctionCallbackInfo<Value>& args)
+{
+	UMAbcIO::instance().get_point_path_list(args);
+}
+
 static void get_mesh(const FunctionCallbackInfo<Value>& args)
 {
 	UMAbcIO::instance().get_mesh(args);
+}
+
+static void get_point(const FunctionCallbackInfo<Value>& args)
+{
+	UMAbcIO::instance().get_point(args);
 }
 
 static void dispose(void*)
@@ -248,7 +330,9 @@ void Init(Handle<Object> exports) {
 	NODE_SET_METHOD(exports, "get_time", get_time);
 	NODE_SET_METHOD(exports, "set_time", set_time);
 	NODE_SET_METHOD(exports, "get_mesh_path_list", get_mesh_path_list);
+	NODE_SET_METHOD(exports, "get_point_path_list", get_point_path_list);
 	NODE_SET_METHOD(exports, "get_mesh", get_mesh);
+	NODE_SET_METHOD(exports, "get_point", get_point);
 }
 
 NODE_MODULE(umnode, Init)

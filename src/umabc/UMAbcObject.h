@@ -121,11 +121,7 @@ public:
 	 * get name
 	 */
 	const std::string& name() const;
-	
-protected:
-	virtual UMAbcObjectPtr self_reference();
 
-	UMAbcObject(IObjectPtr object);
 
 	/**
 	* get minumum time
@@ -136,6 +132,11 @@ protected:
 	* get maximum time
 	*/
 	virtual void set_max_time(unsigned long time);
+
+protected:
+	virtual UMAbcObjectPtr self_reference();
+
+	UMAbcObject(IObjectPtr object);
 
 	/**
 	* get bounding box

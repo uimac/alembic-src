@@ -154,7 +154,8 @@ public:
 	/**
 	* get name list
 	*/
-	void mesh_path_list(std::vector<std::string>& name_list)
+	template <class T>
+	void path_list(std::vector<std::string>& name_list)
 	{
 		if (object_)
 		{
@@ -164,10 +165,10 @@ public:
 				++it)
 			{
 				std::string object_path = "/" + (*it)->name();
-				if (UMAbcMeshPtr mesh = std::dynamic_pointer_cast<UMAbcMesh>(*it)) {
+				if (std::dynamic_pointer_cast<T>(*it)) {
 					name_list.push_back(object_path);
 				}
-				get_mesh_path_list_recursive(object_path, name_list, *it);
+				get_path_list_recursive<T>(object_path, name_list, *it);
 			}
 		}
 	}
@@ -232,17 +233,18 @@ private:
 		}
 	}
 
-	void get_mesh_path_list_recursive(std::string& object_path, std::vector<std::string>& name_list, UMAbcObjectPtr object)
+	template<class T>
+	void get_path_list_recursive(std::string& object_path, std::vector<std::string>& name_list, UMAbcObjectPtr object)
 	{
 		for (UMAbcObjectList::const_iterator it = object->children().begin();
 			it != object->children().end();
 			++it)
 		{
 			std::string path = object_path + "/" + (*it)->name();
-			if (UMAbcMeshPtr mesh = std::dynamic_pointer_cast<UMAbcMesh>(*it)) {
+			if (std::dynamic_pointer_cast<T>(*it)) {
 				name_list.push_back(path);
 			}
-			get_mesh_path_list_recursive(path, name_list, *it);
+			get_path_list_recursive<T>(path, name_list, *it);
 		}
 	}
 
@@ -396,7 +398,17 @@ std::vector<std::string> UMAbcScene::object_name_list()
 std::vector<std::string> UMAbcScene::mesh_path_list()
 {
 	std::vector<std::string> name_list;
-	impl_->mesh_path_list(name_list);
+	impl_->path_list<UMAbcMesh>(name_list);
+	return name_list;
+}
+
+/**
+* get path list
+*/
+std::vector<std::string> UMAbcScene::point_path_list()
+{
+	std::vector<std::string> name_list;
+	impl_->path_list<UMAbcPoint>(name_list);
 	return name_list;
 }
 

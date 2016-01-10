@@ -65,22 +65,6 @@ namespace umabc
 		
 		UMAbcXformWeakPtr self_reference_;
 
-		/**
-		* set minumum time
-		*/
-		void set_min_time(unsigned long time)
-		{
-			UMAbcObject::set_min_time(time);
-		}
-
-		/**
-		* set maximum time
-		*/
-		void set_max_time(unsigned long time)
-		{
-			UMAbcObject::set_max_time(time);
-		}
-
 	private:
 		IXformPtr xform_;
 
@@ -130,8 +114,8 @@ bool UMAbcXform::Impl::init_(bool recursive)
 		if (num_samples > 0)
 		{
 			TimeSamplingPtr time = xform_->getSchema().getTimeSampling();
-			set_min_time(static_cast<unsigned long>(time->getSampleTime(0)*1000));
-			set_max_time(static_cast<unsigned long>(time->getSampleTime(num_samples-1)*1000));
+			self_reference()->set_min_time(static_cast<unsigned long>(time->getSampleTime(0) * 1000));
+			self_reference()->set_max_time(static_cast<unsigned long>(time->getSampleTime(num_samples - 1) * 1000));
 		}
 	}
 	return true;
@@ -256,38 +240,6 @@ void UMAbcXform::update_box(bool recursive)
 UMAbcObjectPtr UMAbcXform::self_reference()
 {
 	return impl_->self_reference();
-}
-
-/**
-* get minumum time
-*/
-unsigned long UMAbcXform::min_time() const
-{
-	return impl_->min_time();
-}
-
-/**
-* get maximum time
-*/
-unsigned long UMAbcXform::max_time() const
-{
-	return impl_->max_time();
-}
-
-/**
-* set minumum time
-*/
-void UMAbcXform::set_min_time(unsigned long time)
-{
-	impl_->set_min_time(time);
-}
-
-/**
-* set maximum time
-*/
-void UMAbcXform::set_max_time(unsigned long time)
-{
-	impl_->set_max_time(time);
 }
 
 /**

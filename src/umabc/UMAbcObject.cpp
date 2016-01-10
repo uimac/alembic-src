@@ -220,27 +220,32 @@ bool UMAbcObject::Impl::init(bool recursive, UMAbcObjectPtr parent)
 			child->set_parent(parent);
 			children_.push_back(child);
 		}
+
 		// recursive
 		if (child && recursive)
 		{
 			child->init(recursive, child);
 		}
 
+		if (!parent) {
+			parent = parent;
+		}
+
 		// set time
 		if (child && child->is_valid())
 		{
-			if (parent) 
-			{
-				parent->set_min_time(std::min(parent->min_time(), child->min_time()));
-				parent->set_max_time(std::max(parent->max_time(), child->max_time()));
-			}
-			else
-			{
+			set_min_time(std::min(min_time(), child->min_time()));
+			set_max_time(std::max(max_time(), child->max_time()));
+			if (!parent) {
+				unsigned int mt = max_time();
+				unsigned int mt2 = child->max_time();
+				unsigned int mt3 = child->self_reference()->max_time();
 				set_min_time(std::min(min_time(), child->min_time()));
 				set_max_time(std::max(max_time(), child->max_time()));
 			}
 		}
 	}
+
 	return true;
 }
 

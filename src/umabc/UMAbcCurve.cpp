@@ -115,8 +115,8 @@ bool UMAbcCurve::Impl::init(bool recursive)
 		if (!curves_->getSchema().isConstant())
 		{
 			TimeSamplingPtr time = curves_->getSchema().getTimeSampling();
-			set_min_time(static_cast<unsigned long>(time->getSampleTime(0)*1000));
-			set_max_time(static_cast<unsigned long>(time->getSampleTime(num_samples - 1) * 1000));
+			self_reference()->set_min_time(static_cast<unsigned long>(time->getSampleTime(0) * 1000));
+			self_reference()->set_max_time(static_cast<unsigned long>(time->getSampleTime(num_samples - 1) * 1000));
 		}
 	}
 	return true;
@@ -140,7 +140,7 @@ void UMAbcCurve::Impl::update_curve_all()
 	if (!is_valid()) return;
 	if (curves_->getSchema().getNumSamples() <= 0) return;
 
-	ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+	ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 	ICurvesSchema::Sample sample;
 	curves_->getSchema().get(sample, selector);
 
@@ -159,7 +159,7 @@ void UMAbcCurve::Impl::update_box(bool recursive)
 	mutable_box().init();
 	
 	if (curves_->getSchema().getNumSamples() <= 0) return;
-	ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+	ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 	ICurvesSchema::Sample sample;
 	curves_->getSchema().get(sample, selector);
 

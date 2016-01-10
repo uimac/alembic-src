@@ -83,6 +83,11 @@ namespace umabc
 		UMOpenGLAbcPointPtr opengl_point() { return opengl_point_; }
 
 		UMAbcPointWeakPtr self_reference_;
+
+		Alembic::AbcGeom::P3fArraySamplePtr positions() { return positions_; }
+		Alembic::AbcGeom::C3fArraySamplePtr colors() { return colors_; }
+		Alembic::AbcGeom::N3fArraySamplePtr normals() { return normals_; }
+
 	private:
 		/**
 		* update points
@@ -164,8 +169,8 @@ bool UMAbcPoint::Impl::init(bool recursive)
 		if (!schema.isConstant())
 		{
 			TimeSamplingPtr time = schema.getTimeSampling();
-			set_min_time(static_cast<unsigned long>(time->getSampleTime(0)*1000));
-			set_max_time(static_cast<unsigned long>(time->getSampleTime(num_samples - 1) * 1000));
+			self_reference()->set_min_time(static_cast<unsigned long>(time->getSampleTime(0)*1000));
+			self_reference()->set_max_time(static_cast<unsigned long>(time->getSampleTime(num_samples - 1) * 1000));
 		}
 	}
 	
@@ -196,7 +201,7 @@ void UMAbcPoint::Impl::update_box(bool recursive)
 
 	if (initial_bounds_prop_ && initial_bounds_prop_.getNumSamples() > 0)
 	{
-		ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+		ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 
 		mutable_box() = 
 			UMAbcConvert::imath_box_to_um(
@@ -221,7 +226,7 @@ void UMAbcPoint::Impl::update_color()
 {
 	if (color_prop_)
 	{
-		ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+		ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 		colors_ = color_prop_.getValue(selector);
 	}
 }
@@ -233,7 +238,7 @@ void UMAbcPoint::Impl::update_normal()
 {
 	if (normal_prop_)
 	{
-		ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+		ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 		normals_ = normal_prop_.getValue(selector);
 	}
 }
@@ -241,7 +246,7 @@ void UMAbcPoint::Impl::update_normal()
 void UMAbcPoint::Impl::update_point()
 {
 	if (!is_valid()) return;
-	ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+	ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 	IPointsSchema::Sample sample;
 	points_->getSchema().get(sample, selector);
 	positions_ = sample.getPositions();
@@ -329,6 +334,63 @@ void UMAbcPoint::update_box(bool recursive)
 void UMAbcPoint::update_point_all()
 {
 	impl_->update_point_all();
+}
+
+/**
+* update positions
+*/
+const Imath::V3f * UMAbcPoint::positions() const
+{
+	return impl_->positions()->get();
+}
+
+/**
+ * get position size
+ */
+unsigned int UMAbcPoint::position_size() const
+{
+	if (impl_->positions()) {
+		return impl_->positions()->size();
+	}
+	return 0;
+}
+
+/**
+ * update color
+ */
+const Imath::V3f * UMAbcPoint::colors() const
+{
+	return impl_->colors()->get();
+}
+
+/**
+* update color size
+*/
+unsigned int UMAbcPoint::color_size() const
+{
+	if (impl_->colors()) {
+		return impl_->colors()->size();
+	}
+	return 0;
+}
+
+/**
+ * get normal size
+ */
+const Imath::V3f * UMAbcPoint::normals() const
+{
+	return impl_->normals()->get();
+}
+
+/**
+* get normal size
+*/
+unsigned int UMAbcPoint::normal_size() const
+{
+	if (impl_->normals()) {
+		return impl_->normals()->size();
+	}
+	return 0;
 }
 
 /**

@@ -135,22 +135,6 @@ namespace umabc
 			return self_reference_.lock();
 		}
 
-		/**
-		* set minumum time
-		*/
-		void set_min_time(unsigned long time)
-		{
-			UMAbcObject::set_min_time(time);
-		}
-
-		/**
-		* set maximum time
-		*/
-		void set_max_time(unsigned long time)
-		{
-			UMAbcObject::set_max_time(time);
-		}
-
 		UMAbcMeshWeakPtr self_reference_;
 	private:
 		/**
@@ -250,8 +234,8 @@ bool UMAbcMesh::Impl::init(bool recursive)
 		if (!poly_mesh_->getSchema().isConstant())
 		{
 			TimeSamplingPtr time = poly_mesh_->getSchema().getTimeSampling();
-			set_min_time(static_cast<unsigned long>(time->getSampleTime(0) * 1000));
-			set_max_time(static_cast<unsigned long>(time->getSampleTime(num_samples - 1) * 1000));
+			self_reference()->set_min_time(static_cast<unsigned long>(time->getSampleTime(0) * 1000));
+			self_reference()->set_max_time(static_cast<unsigned long>(time->getSampleTime(num_samples - 1) * 1000));
 		}
 	}
 	
@@ -259,7 +243,7 @@ bool UMAbcMesh::Impl::init(bool recursive)
 	faceset_names_.clear();
 	poly_mesh_->getSchema().getFaceSetNames(faceset_names_);
 	
-	ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+	ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 
 	for (int i = 0, size = static_cast<int>(faceset_names_.size()); i < size; ++i)
 	{
@@ -306,7 +290,7 @@ void UMAbcMesh::Impl::set_current_time(unsigned long time, bool recursive)
 void UMAbcMesh::Impl::update_normal()
 {
 	if (!is_valid()) return;
-	ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+	ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 	IN3fGeomParam normal_param = poly_mesh_->getSchema().getNormalsParam();
 
 	bool is_face_varying = false;
@@ -347,7 +331,7 @@ void UMAbcMesh::Impl::update_normal()
 			const V3f& v0 = (*vertex_)[index[0]];
 			const V3f& v1 = (*vertex_)[index[1]];
 			const V3f& v2 = (*vertex_)[index[2]];
-			V3f normal = (v1-v0).cross(v2-v0);
+			V3f normal = (v0-v1).cross(v2-v1);
 			original_normal_[index[0]] += normal;
 			original_normal_[index[1]] += normal;
 			original_normal_[index[2]] += normal;
@@ -418,7 +402,7 @@ void UMAbcMesh::Impl::update_normal()
 void UMAbcMesh::Impl::update_uv()
 {
 	if (!is_valid()) return;
-	ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+	ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 	IV2fGeomParam uv_param = poly_mesh_->getSchema().getUVsParam();
 
 	if (uv_param.getNumSamples() <= 0) return;
@@ -555,7 +539,7 @@ void UMAbcMesh::Impl::update_vertex_index_by_faceset(IPolyMeshSchema::Sample& sa
 	faceset_names_.clear();
 	poly_mesh_->getSchema().getFaceSetNames(faceset_names_);
 		
-	ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+	ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 	for (int i = 0, size = static_cast<int>(faceset_names_.size()); i < size; ++i)
 	{
 		std::string name = faceset_names_.at(i);
@@ -743,7 +727,7 @@ void UMAbcMesh::Impl::update_vertex_index(IPolyMeshSchema::Sample& sample)
  */
 void UMAbcMesh::Impl::update_mesh_all()
 {
-	ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+	ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 	IPolyMeshSchema::Sample sample;
 
 	if (poly_mesh_->getSchema().isConstant())
@@ -834,7 +818,7 @@ void UMAbcMesh::Impl::update_box(bool recursive)
 
 	if (initial_bounds_prop_ && initial_bounds_prop_.getNumSamples() > 0)
 	{
-		ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+		ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 
 		mutable_box() = 
 			UMAbcConvert::imath_box_to_um(
@@ -1083,38 +1067,6 @@ unsigned int UMAbcMesh::uv_size() const
 		return 0;
 	}
 	return static_cast<unsigned int>(impl_->uv().getVals()->size());
-}
-
-/**
-* get minumum time
-*/
-unsigned long UMAbcMesh::min_time() const
-{
-	return impl_->min_time();
-}
-
-/**
-* get maximum time
-*/
-unsigned long UMAbcMesh::max_time() const
-{
-	return impl_->max_time();
-}
-
-/**
-* set minumum time
-*/
-void UMAbcMesh::set_min_time(unsigned long time)
-{
-	impl_->set_min_time(time);
-}
-
-/**
-* set maximum time
-*/
-void UMAbcMesh::set_max_time(unsigned long time)
-{
-	impl_->set_max_time(time);
 }
 
 /**

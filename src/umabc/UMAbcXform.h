@@ -73,16 +73,6 @@ public:
 	//virtual void draw(bool recursive, UMAbc::DrawType type);
 
 	/**
-	* get minumum time
-	*/
-	virtual unsigned long min_time() const;
-
-	/**
-	* get maximum time
-	*/
-	virtual unsigned long max_time() const;
-
-	/**
 	* get current time
 	*/
 	virtual double current_time() const;
@@ -91,16 +81,6 @@ protected:
 	UMAbcXform(IXformPtr xform);
 	
 	virtual UMAbcObjectPtr self_reference();
-
-	/**
-	* set minumum time
-	*/
-	virtual void set_min_time(unsigned long time);
-
-	/**
-	* set maximum time
-	*/
-	virtual void set_max_time(unsigned long time);
 
 private:
 	class Impl;
