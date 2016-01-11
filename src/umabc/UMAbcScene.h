@@ -118,6 +118,21 @@ public:
 	std::vector<std::string> point_path_list();
 
 	/**
+	* get path list
+	*/
+	std::vector<std::string> curve_path_list();
+
+	/**
+	* get path list
+	*/
+	std::vector<std::string> nurbs_path_list();
+
+	/**
+	* get path list
+	*/
+	std::vector<std::string> camera_path_list();
+
+	/**
 	 * find object
 	 */
 	UMAbcObjectPtr find_object(const std::string& object_path);

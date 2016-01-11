@@ -18,6 +18,9 @@ namespace AbcA = Alembic::AbcCoreAbstract;
 #include "UMAbcObject.h"
 #include "UMAbcMesh.h"
 #include "UMAbcPoint.h"
+#include "UMAbcCurve.h"
+#include "UMAbcNurbsPatch.h"
+#include "UMAbcCamera.h"
 
 using namespace v8;
 
@@ -132,6 +135,67 @@ public:
 		args.GetReturnValue().Set(result);
 	}
 
+	void get_curve_path_list(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = Isolate::GetCurrent();
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
+		std::vector<std::string> path_list = scene->curve_path_list();
+		const int list_size = static_cast<int>(path_list.size());
+		Local<Array> result = Array::New(isolate, list_size);
+		for (int i = 0; i < list_size; ++i) {
+			result->Set(i, String::NewFromUtf8(isolate, path_list[i].c_str()));
+		}
+		args.GetReturnValue().Set(result);
+	}
+
+	void get_nurbs_path_list(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = Isolate::GetCurrent();
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
+		std::vector<std::string> path_list = scene->curve_path_list();
+		const int list_size = static_cast<int>(path_list.size());
+		Local<Array> result = Array::New(isolate, list_size);
+		for (int i = 0; i < list_size; ++i) {
+			result->Set(i, String::NewFromUtf8(isolate, path_list[i].c_str()));
+		}
+		args.GetReturnValue().Set(result);
+	}
+
+	void get_camera_path_list(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = Isolate::GetCurrent();
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
+		std::vector<std::string> path_list = scene->camera_path_list();
+		const int list_size = static_cast<int>(path_list.size());
+		Local<Array> result = Array::New(isolate, list_size);
+		for (int i = 0; i < list_size; ++i) {
+			result->Set(i, String::NewFromUtf8(isolate, path_list[i].c_str()));
+		}
+		args.GetReturnValue().Set(result);
+	}
+
+	void assign_transform(Local<Object>& result, umabc::UMAbcNodePtr node)
+	{
+		Isolate* isolate = Isolate::GetCurrent();
+		{
+			const UMMat44d& global_transform = node->global_transform();
+			Local<Array> trans = Array::New(isolate, 16);
+			for (int i = 0; i < 4; ++i) {
+				for (int k = 0; k < 4; ++k) {
+					trans->Set(i * 4 + k, Number::New(isolate, global_transform[i][k]));
+				}
+			}
+			result->Set(String::NewFromUtf8(isolate, "global_transform"), trans);
+		}
+		{
+			const UMMat44d& local_transform = node->local_transform();
+			Local<Array> trans = Array::New(isolate, 16);
+			for (int i = 0; i < 4; ++i) {
+				for (int k = 0; k < 4; ++k) {
+					trans->Set(i * 4 + k, Number::New(isolate, local_transform[i][k]));
+				}
+			}
+			result->Set(String::NewFromUtf8(isolate, "local_transform"), trans);
+		}
+	}
+
 	void get_mesh(const FunctionCallbackInfo<Value>& args) {
 		Isolate* isolate = Isolate::GetCurrent();
 		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
@@ -173,28 +237,7 @@ public:
 				memcpy(contents.Data(), mesh->uv(), mesh->uv_size() * sizeof(Imath::V2f));
 				result->Set(String::NewFromUtf8(isolate, "uv"), Float32Array::New(uvs, 0, mesh->uv_size() * 2));
 			}
-
-			{
-				const UMMat44d& global_transform = mesh->global_transform();
-				Local<Array> trans = Array::New(isolate, 16);
-				for (int i = 0; i < 4; ++i) {
-					for (int k = 0; k < 4; ++k) {
-						trans->Set(i * 4 + k, Number::New(isolate, global_transform[i][k]));
-					}
-				}
-				result->Set(String::NewFromUtf8(isolate, "global_transform"), trans);
-			}
-
-			{
-				const UMMat44d& local_transform = mesh->local_transform();
-				Local<Array> trans = Array::New(isolate, 16);
-				for (int i = 0; i < 4; ++i) {
-					for (int k = 0; k < 4; ++k) {
-						trans->Set(i * 4 + k, Number::New(isolate, local_transform[i][k]));
-					}
-				}
-				result->Set(String::NewFromUtf8(isolate, "local_transform"), trans);
-			}
+			assign_transform(result, mesh);
 		}
 		args.GetReturnValue().Set(result);
 	}
@@ -233,28 +276,55 @@ public:
 				memcpy(contents.Data(), &point->colors()[0], point->color_size() * sizeof(Imath::V3f));
 				result->Set(String::NewFromUtf8(isolate, "color"), Float32Array::New(normals, 0, point->color_size() * 3));
 			}
+			assign_transform(result, point);
+		}
+		args.GetReturnValue().Set(result);
+	}
 
-			{
-				const UMMat44d& global_transform = point->global_transform();
-				Local<Array> trans = Array::New(isolate, 16);
-				for (int i = 0; i < 4; ++i) {
-					for (int k = 0; k < 4; ++k) {
-						trans->Set(i * 4 + k, Number::New(isolate, global_transform[i][k]));
-					}
-				}
-				result->Set(String::NewFromUtf8(isolate, "global_transform"), trans);
-			}
+	void get_curve(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = Isolate::GetCurrent();
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
 
-			{
-				const UMMat44d& local_transform = point->local_transform();
-				Local<Array> trans = Array::New(isolate, 16);
-				for (int i = 0; i < 4; ++i) {
-					for (int k = 0; k < 4; ++k) {
-						trans->Set(i * 4 + k, Number::New(isolate, local_transform[i][k]));
-					}
-				}
-				result->Set(String::NewFromUtf8(isolate, "local_transform"), trans);
-			}
+		v8::String::Utf8Value utf8path(args[1]->ToString());
+		std::string object_path(*utf8path);
+		Local<Object> result = Object::New(isolate);
+
+		umabc::UMAbcCurvePtr curve = std::dynamic_pointer_cast<umabc::UMAbcCurve>(scene->find_object(object_path));
+		if (curve)
+		{
+			assign_transform(result, curve);
+		}
+		args.GetReturnValue().Set(result);
+	}
+
+	void get_nurbs(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = Isolate::GetCurrent();
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
+
+		v8::String::Utf8Value utf8path(args[1]->ToString());
+		std::string object_path(*utf8path);
+		Local<Object> result = Object::New(isolate);
+
+		umabc::UMAbcNurbsPatchPtr curve = std::dynamic_pointer_cast<umabc::UMAbcNurbsPatch>(scene->find_object(object_path));
+		if (curve)
+		{
+			assign_transform(result, curve);
+		}
+		args.GetReturnValue().Set(result);
+	}
+
+	void get_camera(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = Isolate::GetCurrent();
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
+
+		v8::String::Utf8Value utf8path(args[1]->ToString());
+		std::string object_path(*utf8path);
+		Local<Object> result = Object::New(isolate);
+
+		umabc::UMAbcCameraPtr camera = std::dynamic_pointer_cast<umabc::UMAbcCamera>(scene->find_object(object_path));
+		if (camera)
+		{
+			assign_transform(result, camera);
 		}
 		args.GetReturnValue().Set(result);
 	}
@@ -307,6 +377,21 @@ static void get_point_path_list(const FunctionCallbackInfo<Value>& args)
 	UMAbcIO::instance().get_point_path_list(args);
 }
 
+static void get_curve_path_list(const FunctionCallbackInfo<Value>& args)
+{
+	UMAbcIO::instance().get_curve_path_list(args);
+}
+
+static void get_nurbs_path_list(const FunctionCallbackInfo<Value>& args)
+{
+	UMAbcIO::instance().get_nurbs_path_list(args);
+}
+
+static void get_camera_path_list(const FunctionCallbackInfo<Value>& args)
+{
+	UMAbcIO::instance().get_camera_path_list(args);
+}
+
 static void get_mesh(const FunctionCallbackInfo<Value>& args)
 {
 	UMAbcIO::instance().get_mesh(args);
@@ -315,6 +400,21 @@ static void get_mesh(const FunctionCallbackInfo<Value>& args)
 static void get_point(const FunctionCallbackInfo<Value>& args)
 {
 	UMAbcIO::instance().get_point(args);
+}
+
+static void get_curve(const FunctionCallbackInfo<Value>& args)
+{
+	UMAbcIO::instance().get_curve(args);
+}
+
+static void get_nurbs(const FunctionCallbackInfo<Value>& args)
+{
+	UMAbcIO::instance().get_nurbs(args);
+}
+
+static void get_camera(const FunctionCallbackInfo<Value>& args)
+{
+	UMAbcIO::instance().get_camera(args);
 }
 
 static void dispose(void*)
@@ -331,8 +431,14 @@ void Init(Handle<Object> exports) {
 	NODE_SET_METHOD(exports, "set_time", set_time);
 	NODE_SET_METHOD(exports, "get_mesh_path_list", get_mesh_path_list);
 	NODE_SET_METHOD(exports, "get_point_path_list", get_point_path_list);
+	NODE_SET_METHOD(exports, "get_curve_path_list", get_curve_path_list);
+	NODE_SET_METHOD(exports, "get_nurbs_path_list", get_nurbs_path_list);
+	NODE_SET_METHOD(exports, "get_camera_path_list", get_camera_path_list);
 	NODE_SET_METHOD(exports, "get_mesh", get_mesh);
 	NODE_SET_METHOD(exports, "get_point", get_point);
+	NODE_SET_METHOD(exports, "get_curve", get_curve);
+	NODE_SET_METHOD(exports, "get_nurbs", get_nurbs);
+	NODE_SET_METHOD(exports, "get_camera", get_camera);
 }
 
 NODE_MODULE(umnode, Init)

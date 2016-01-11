@@ -23,6 +23,8 @@
 #include "UMAbcSoftwareIO.h"
 #include "UMAbcMesh.h"
 #include "UMAbcPoint.h"
+#include "UMAbcCurve.h"
+#include "UMAbcNurbsPatch.h"
 #include "UMAbcCamera.h"
 
 #include "UMScene.h"
@@ -409,6 +411,36 @@ std::vector<std::string> UMAbcScene::point_path_list()
 {
 	std::vector<std::string> name_list;
 	impl_->path_list<UMAbcPoint>(name_list);
+	return name_list;
+}
+
+/**
+* get path list
+*/
+std::vector<std::string> UMAbcScene::curve_path_list()
+{
+	std::vector<std::string> name_list;
+	impl_->path_list<UMAbcCurve>(name_list);
+	return name_list;
+}
+
+/**
+* get path list
+*/
+std::vector<std::string> UMAbcScene::nurbs_path_list()
+{
+	std::vector<std::string> name_list;
+	impl_->path_list<UMAbcNurbsPatch>(name_list);
+	return name_list;
+}
+
+/**
+* get path list
+*/
+std::vector<std::string> UMAbcScene::camera_path_list()
+{
+	std::vector<std::string> name_list;
+	impl_->path_list<UMAbcCamera>(name_list);
 	return name_list;
 }
 
