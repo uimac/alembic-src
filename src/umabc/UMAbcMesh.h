@@ -41,12 +41,6 @@ namespace umdraw
 namespace umabc
 {
 typedef std::shared_ptr<Alembic::AbcGeom::v7::IPolyMesh> IPolyMeshPtr;
-	
-class UMDirectX11AbcMesh;
-typedef std::shared_ptr<UMDirectX11AbcMesh> UMDirectX11AbcMeshPtr;
-
-class UMOpenGLAbcMesh;
-typedef std::shared_ptr<UMOpenGLAbcMesh> UMOpenGLAbcMeshPtr;
 
 class UMAbcMesh;
 typedef std::shared_ptr<UMAbcMesh> UMAbcMeshPtr;
@@ -97,16 +91,6 @@ public:
 	virtual double current_time() const;
 
 	/**
-	 * get opengl mesh
-	 */
-	UMOpenGLAbcMeshPtr opengl_mesh();
-
-	/**
-	 * get directx mesh
-	 */
-	UMDirectX11AbcMeshPtr directx_mesh();
-
-	/**
 	 * get polygon count
 	 */
 	int polygon_count() const;
@@ -140,11 +124,6 @@ public:
 	 * get faceset polycount list
 	 */
 	const std::vector<int>& faceset_polycount_list() const;
-
-	/**
-	 * set cw or not
-	 */
-	void set_cw(bool is_cw);
 
 	/**
 	 * get vertex

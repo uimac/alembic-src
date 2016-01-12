@@ -39,9 +39,6 @@ class UMAbcPoint;
 typedef std::shared_ptr<UMAbcPoint> UMAbcPointPtr;
 typedef std::weak_ptr<UMAbcPoint> UMAbcPointWeakPtr;
 
-class UMOpenGLAbcPoint;
-typedef std::shared_ptr<UMOpenGLAbcPoint> UMOpenGLAbcPointPtr;
-
 class UMAbcPoint : public UMAbcObject
 {
 	DISALLOW_COPY_AND_ASSIGN(UMAbcPoint);
@@ -73,12 +70,6 @@ public:
 	 * @param [in] recursive do children recursively
 	 */
 	virtual void update_box(bool recursive);
-
-	///**
-	// * draw
-	// * @param [in] recursive do children recursively
-	// */
-	//virtual void draw(bool recursive, UMAbc::DrawType type);
 	
 	/** 
 	 * update point all
@@ -114,16 +105,6 @@ public:
 	* get color size
 	*/
 	unsigned int color_size() const;
-
-	/**
-	 * get opengl point
-	 */
-	UMOpenGLAbcPointPtr opengl_point();
-
-	///**
-	// * get directx point
-	// */
-	//UMDirectX11AbcPointPtr directx_point() { return directx_point_; }
 
 protected:
 	UMAbcPoint(IPointsPtr points);

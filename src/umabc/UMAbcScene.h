@@ -61,11 +61,6 @@ public:
 	 */
 	virtual bool dispose();
 	
-	///** 
-	// * refresh scene
-	// */
-	//virtual bool draw();
-	
 	/**
 	 * update scene
 	 */

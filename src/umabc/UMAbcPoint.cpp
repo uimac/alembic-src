@@ -14,16 +14,7 @@
 #include <Alembic/AbcCoreFactory/All.h>
 
 #include "UMAbcPoint.h"
-
 #include "UMAbcConvert.h"
-
-#ifdef WITH_DIRECTX
-	#include "UMDirectX11.h"
-#endif
-
-#ifdef WITH_OPENGL
-	#include "UMOpenGLAbcPoint.h"
-#endif
 
 namespace umabc
 {
@@ -66,21 +57,10 @@ namespace umabc
 		*/
 		virtual void update_box(bool recursive);
 
-		///**
-		//* draw
-		//* @param [in] recursive do children recursively
-		//*/
-		//virtual void draw(bool recursive, UMAbc::DrawType type);
-
 		/**
 		* update point all
 		*/
 		void update_point_all();
-
-		/**
-		* get opengl point
-		*/
-		UMOpenGLAbcPointPtr opengl_point() { return opengl_point_; }
 
 		UMAbcPointWeakPtr self_reference_;
 
@@ -114,8 +94,6 @@ namespace umabc
 		Alembic::AbcGeom::P3fArraySamplePtr positions_;
 		Alembic::AbcGeom::C3fArraySamplePtr colors_;
 		Alembic::AbcGeom::N3fArraySamplePtr normals_;
-
-		UMOpenGLAbcPointPtr opengl_point_;
 	};
 
 /**
@@ -250,13 +228,6 @@ void UMAbcPoint::Impl::update_point()
 	IPointsSchema::Sample sample;
 	points_->getSchema().get(sample, selector);
 	positions_ = sample.getPositions();
-	
-#ifdef WITH_OPENGL
-	if (opengl_point_ && !umdraw::UMDirectX11::current_device_pointer())
-	{
-		opengl_point_->update_vertex(positions_);
-	}
-#endif // WITH_OPENGL
 
 }
 
@@ -271,21 +242,6 @@ void UMAbcPoint::Impl::update_point_all()
 	update_normal();
 }
 
-//void UMAbcPoint::Impl::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	if (!is_valid()) return;
-//	if (!positions_) return;
-//	
-//#ifdef WITH_OPENGL
-//	if (type == UMAbc::eOpenGL && !umdraw::UMDirectX11::current_device_pointer())
-//	{
-//		if (opengl_point_)
-//		{
-//			opengl_point_->draw();
-//		}
-//	}
-//#endif // WITH_OPENGL
-//}
 /**
 * initialize
 * @param [in] recursive do children recursively
@@ -318,16 +274,6 @@ void UMAbcPoint::update_box(bool recursive)
 	impl_->update_box(recursive);
 }
 
-///**
-//* draw
-//* @param [in] recursive do children recursively
-//*/
-//void UMAbcPoint::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	impl_->draw(recursive, type);
-//	UMAbcObject::draw(recursive, type);
-//}
-
 /**
 * update point all
 */
@@ -341,7 +287,10 @@ void UMAbcPoint::update_point_all()
 */
 const Imath::V3f * UMAbcPoint::positions() const
 {
-	return impl_->positions()->get();
+	if (impl_->positions()) {
+		return impl_->positions()->get();
+	}
+	return NULL;
 }
 
 /**
@@ -391,14 +340,6 @@ unsigned int UMAbcPoint::normal_size() const
 		return impl_->normals()->size();
 	}
 	return 0;
-}
-
-/**
-* get opengl point
-*/
-UMOpenGLAbcPointPtr UMAbcPoint::opengl_point()
-{
-	return impl_->opengl_point();
 }
 
 UMAbcObjectPtr UMAbcPoint::self_reference()

@@ -42,8 +42,7 @@ class UMAbcScene::SceneImpl
 public:
 
 	SceneImpl(UMAbcObjectPtr root)
-		: is_cw_(true)
-		, object_(root)
+		: object_(root)
 		, pre_time_(-1)
 		{}
 	~SceneImpl() {}
@@ -56,10 +55,6 @@ public:
 		unsigned long current = object_->current_time_ms();
 		if (object_->init(true, UMAbcObjectPtr()))
 		{
-			if (!is_cw_)
-			{
-				UMAbcSoftwareIO::convert_abc_mesh_ccw_to_cw(object_);
-			}
 			unsigned long min_time_ = object_->min_time();
 			unsigned long max_time_ = object_->max_time();
 
@@ -95,14 +90,6 @@ public:
 		pre_time_ = time;
 		return true;
 	}
-
-	///** 
-	// * refresh scene
-	// */
-	//bool draw()
-	//{
-	//	return true;
-	//}
 
 	bool clear() 
 	{
@@ -217,7 +204,6 @@ private:
 	UMAbcObjectPtr object_;
 	umdraw::UMSceneWeakPtr scene_;
 	umdraw::UMMaterialMap material_map_;
-	bool is_cw_;
 	unsigned long pre_time_;
 
 	/**
@@ -359,14 +345,6 @@ bool UMAbcScene::dispose()
 	impl_ = SceneImplPtr();
 	return true;
 }
-
-///** 
-// * refresh scene
-// */
-//bool UMAbcScene::draw()
-//{
-//	return impl_->draw();
-//}
 
 /** 
  * update scene

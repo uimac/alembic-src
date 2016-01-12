@@ -315,7 +315,6 @@ void UMAbcSoftwareIO::convert_abc_mesh_ccw_to_cw(umabc::UMAbcObjectPtr src)
 	for (int i = 0, size = static_cast<int>(mesh_list.size()); i < size; ++i)
 	{
 		UMAbcMeshPtr mesh = mesh_list.at(i);
-		mesh->set_cw(false);
 		mesh->update_mesh_all();
 	}
 

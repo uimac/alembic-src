@@ -58,12 +58,6 @@ namespace umabc
 		*/
 		virtual void update_box(bool recursive);
 
-		///**
-		//* draw
-		//* @param [in] recursive do children recursively
-		//*/
-		//virtual void draw(bool recursive, UMAbc::DrawType type);
-
 		/**
 		* update patch all
 		*/
@@ -128,8 +122,8 @@ bool UMAbcNurbsPatch::Impl::init(bool recursive)
 		if (!patch_->getSchema().isConstant())
 		{
 			TimeSamplingPtr time = patch_->getSchema().getTimeSampling();
-			set_min_time(static_cast<unsigned long>(time->getSampleTime(0)*1000));
-			set_max_time(static_cast<unsigned long>(time->getSampleTime(num_samples - 1) * 1000));
+			self_reference()->set_min_time(static_cast<unsigned long>(time->getSampleTime(0) * 1000));
+			self_reference()->set_max_time(static_cast<unsigned long>(time->getSampleTime(num_samples - 1) * 1000));
 		}
 	}
 
@@ -151,7 +145,7 @@ void UMAbcNurbsPatch::Impl::set_current_time(unsigned long time, bool recursive)
 void UMAbcNurbsPatch::Impl::update_patch_all()
 {
 	if (!is_valid()) return;
-	ISampleSelector selector(current_time(), ISampleSelector::kNearIndex);
+	ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 	INuPatchSchema::Sample sample;
 	patch_->getSchema().get(sample, selector);
 
@@ -182,15 +176,6 @@ void UMAbcNurbsPatch::Impl::update_box(bool recursive)
 		}
 	}
 }
-
-///**
-// * refresh
-// */
-//void UMAbcNurbsPatch::Impl::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	if (!is_valid()) return;
-//}
-
 
 /**
 * initialize
@@ -223,16 +208,6 @@ void UMAbcNurbsPatch::update_box(bool recursive)
 {
 	return impl_->update_box(recursive);
 }
-
-///**
-//* draw
-//* @param [in] recursive do children recursively
-//*/
-//void UMAbcNurbsPatch::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	impl_->draw(recursive, type);
-//	UMAbcObject::draw(recursive, type);
-//}
 
 /**
 * update patch all

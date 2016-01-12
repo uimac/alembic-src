@@ -74,11 +74,6 @@ public:
 	 */
 	bool save_setting(std::string path, const UMAbcSetting& setting);
 
-	/**
-	* get loaded event
-	*/
-	//umbase::UMEventPtr loaded_event() { return loaded_event_; }
-
 	/** 
 	 * import umabc materials
 	 * @param [out] dst destination material list

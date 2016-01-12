@@ -70,11 +70,21 @@ public:
 	 */
 	virtual void update_box(bool recursive);
 
-	///**
-	// * draw
-	// * @param [in] recursive do children recursively
-	// */
-	//virtual void draw(bool recursive, UMAbc::DrawType type);
+	/**
+	 * curve count
+	 */
+	unsigned int curve_count() const;
+
+	/**
+	 * num verts
+	 */
+	const std::vector<int>& num_vertices() const;
+
+	/**
+	* get position
+	*/
+	const Imath::V3f * positions() const;
+
 	
 	/**
 	 * update curve all

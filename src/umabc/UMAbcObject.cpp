@@ -100,11 +100,6 @@ namespace umabc
 		*/
 		void update_box(bool recursive);
 
-		///**
-		//* draw
-		//*/
-		//void draw(bool recursive, UMAbc::DrawType type);
-
 		/**
 		* get children
 		*/
@@ -305,25 +300,6 @@ bool UMAbcObject::Impl::is_visible() const
 	return false;
 }
 
-///**
-// * draw
-// */
-//void UMAbcObject::Impl::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	if (!is_valid()) return;
-//	//if (!is_visible()) return;
-//	
-//	UMAbcObjectList::const_iterator it = children_.begin();
-//	for (; it != children_.end(); ++it)
-//	{
-//		UMAbcObjectPtr child = *it;
-//		if (recursive)
-//		{
-//			child->draw(recursive, type);
-//		}
-//	}
-//}
-
 /**
  * crate instance
  */
@@ -433,14 +409,6 @@ void UMAbcObject::update_box(bool recursive)
 {
 	impl_->update_box(recursive);
 }
-
-///**
-//* draw
-//*/
-//void UMAbcObject::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	impl_->draw(recursive, type);
-//}
 
 /**
 * get children

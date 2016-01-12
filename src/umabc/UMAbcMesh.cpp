@@ -19,15 +19,6 @@
 #include "UMAbcConvert.h"
 #include "UMMaterial.h"
 
-#ifdef WITH_OPENGL
-#include "UMOpenGLAbcMesh.h"
-#endif
-
-#ifdef WITH_DIRECTX
-#include "UMDirectX11AbcMesh.h"
-#include "UMDirectX11.h"
-#endif
-
 namespace umabc
 {
 	
@@ -41,7 +32,6 @@ namespace umabc
 		Impl(IPolyMeshPtr poly_mesh)
 			: UMAbcObject(poly_mesh)
 			, poly_mesh_(poly_mesh)
-			, is_cw_(true) 
 		{}
 
 		~Impl() {}
@@ -65,22 +55,6 @@ namespace umabc
 		* @param [in] recursive do children recursively
 		*/
 		void update_box(bool recursive);
-
-		///**
-		//* draw
-		//* @param [in] recursive do children recursively
-		//*/
-		//void draw(bool recursive, UMAbc::DrawType type);
-
-		/**
-		* get opengl mesh
-		*/
-		UMOpenGLAbcMeshPtr opengl_mesh() { return opengl_mesh_; }
-
-		/**
-		* get directx mesh
-		*/
-		UMDirectX11AbcMeshPtr directx_mesh() { return directx_mesh_; }
 
 		/**
 		* get polygon count
@@ -124,11 +98,6 @@ namespace umabc
 		* get faceset polycount list
 		*/
 		const std::vector<int>& faceset_polycount_list() const { return faceset_polycount_list_; }
-
-		/**
-		* set cw or not
-		*/
-		void set_cw(bool is_cw) { is_cw_ = is_cw; }
 
 		UMAbcObjectPtr self_reference()
 		{
@@ -183,14 +152,11 @@ namespace umabc
 
 		IndexList triangle_index_;
 
-		UMOpenGLAbcMeshPtr opengl_mesh_;
-		UMDirectX11AbcMeshPtr directx_mesh_;
 		umdraw::UMMaterialList material_list_;
 		std::vector<umstring> faceset_name_list_;
 		std::vector<std::string> faceset_names_;
 		std::vector<int> faceset_polycount_list_;
 		std::vector<int> faceset_original_polycount_list_;
-		bool is_cw_;
 	};
 
 /**
@@ -258,20 +224,6 @@ bool UMAbcMesh::Impl::init(bool recursive)
 		size_t facesize = faces->size();
 		faceset_[name] = faceset_sample;
 	}
-
-#ifdef WITH_OPENGL
-	if (UMAbcMeshPtr self = self_reference_.lock())
-	{
-		opengl_mesh_ = UMOpenGLAbcMeshPtr(new UMOpenGLAbcMesh(self));
-	}
-#endif // WITH_OPENGL
-
-#ifdef WITH_DIRECTX
-	if (UMAbcMeshPtr self = self_reference_.lock())
-	{
-		directx_mesh_ = UMDirectX11AbcMeshPtr(new UMDirectX11AbcMesh(self));
-	}
-#endif // WITH_DIRECTX
 	return true;
 }
 
@@ -356,44 +308,6 @@ void UMAbcMesh::Impl::update_normal()
 			original_normal_[i].normalize();
 		}
 	}
-	
-#ifdef WITH_OPENGL
-	if (opengl_mesh_ && !umdraw::UMDirectX11::current_device_pointer())
-	{
-		if (is_face_varying)
-		{
-			opengl_mesh_->update_normal(triangle_index_, original_normal_, UMOpenGLAbcMesh::eFaceVarying, is_cw_);
-		}
-		else
-		{
-			opengl_mesh_->update_normal(triangle_index_, original_normal_, UMOpenGLAbcMesh::eVertexVarying, is_cw_);
-		}
-	}
-#endif // WITH_OPENGL
-
-#ifdef WITH_DIRECTX
-	if (directx_mesh_ && umdraw::UMDirectX11::current_device_pointer())
-	{
-		if (is_face_varying)
-		{
-			directx_mesh_->update_normal(
-				reinterpret_cast<ID3D11Device*>(umdraw::UMDirectX11::current_device_pointer()),
-				triangle_index_,
-				original_normal_,
-				UMDirectX11AbcMesh::eFaceVarying,
-				is_cw_);
-		}
-		else
-		{
-			directx_mesh_->update_normal(
-				reinterpret_cast<ID3D11Device*>(umdraw::UMDirectX11::current_device_pointer()),
-				triangle_index_,
-				original_normal_,
-				UMDirectX11AbcMesh::eVertexVarying,
-				is_cw_);
-		}
-	}
-#endif // WITH_DIRECTX
 }
 
 /** 
@@ -422,44 +336,6 @@ void UMAbcMesh::Impl::update_uv()
 			uv_param.getExpanded(uv_, selector);
 		}
 	}
-	
-#ifdef WITH_OPENGL
-	if (opengl_mesh_ && !umdraw::UMDirectX11::current_device_pointer())
-	{
-		if (scope == kFacevaryingScope)
-		{
-			opengl_mesh_->update_uv(triangle_index_, uv_, UMOpenGLAbcMesh::eFaceVarying, is_cw_);
-		}
-		else
-		{
-			opengl_mesh_->update_uv(triangle_index_, uv_, UMOpenGLAbcMesh::eVertexVarying, is_cw_);
-		}
-	}
-#endif // WITH_OPENGL
-
-#ifdef WITH_DIRECTX
-	if (directx_mesh_ && umdraw::UMDirectX11::current_device_pointer())
-	{
-		if (scope == kFacevaryingScope)
-		{
-			directx_mesh_->update_uv(
-				reinterpret_cast<ID3D11Device*>(triangle_index_, umdraw::UMDirectX11::current_device_pointer()),
-				triangle_index_,
-				uv_,
-				UMDirectX11AbcMesh::eFaceVarying,
-				is_cw_);
-		}
-		else
-		{
-			directx_mesh_->update_uv(
-				reinterpret_cast<ID3D11Device*>(triangle_index_, umdraw::UMDirectX11::current_device_pointer()),
-				triangle_index_,
-				uv_,
-				UMDirectX11AbcMesh::eVertexVarying,
-				is_cw_);
-		}
-	}
-#endif // WITH_DIRECTX
 }
 
 /**
@@ -472,24 +348,6 @@ void UMAbcMesh::Impl::update_vertex(IPolyMeshSchema::Sample& sample)
 	P3fArraySamplePtr vertex = sample.getPositions();
 
 	vertex_ = vertex;
-	
-#ifdef WITH_OPENGL
-	if (opengl_mesh_ && !umdraw::UMDirectX11::current_device_pointer())
-	{
-		opengl_mesh_->update_vertex(triangle_index_, vertex_, is_cw_);
-	}
-#endif // WITH_OPENGL
-
-#ifdef WITH_DIRECTX
-	if (directx_mesh_ && umdraw::UMDirectX11::current_device_pointer())
-	{
-		directx_mesh_->update_vertex(
-			reinterpret_cast<ID3D11Device*>(umdraw::UMDirectX11::current_device_pointer()),
-			triangle_index_,
-			vertex_,
-			is_cw_);
-	}
-#endif // WITH_DIRECTX
 }
 
 /**
@@ -573,43 +431,20 @@ void UMAbcMesh::Impl::update_vertex_index_by_faceset(IPolyMeshSchema::Sample& sa
 
 			if (count > 2)
 			{
-				if (is_cw_)
-				{
-					// this is alembic default
-					triangle_index_.push_back(
-						UMVec3ui(
-						(*vertex_index_)[begin_index + 0],
-						(*vertex_index_)[begin_index + 1],
-						(*vertex_index_)[begin_index + 2]));
-				}
-				else
-				{
-					// wrong data. flip.
-					triangle_index_.push_back(
-						UMVec3ui(
-						(*vertex_index_)[begin_index + 0],
-						(*vertex_index_)[begin_index + 2],
-						(*vertex_index_)[begin_index + 1]));
-				}
+				// CW. this is alembic default.
+				triangle_index_.push_back(
+					UMVec3ui(
+					(*vertex_index_)[begin_index + 0],
+					(*vertex_index_)[begin_index + 1],
+					(*vertex_index_)[begin_index + 2]));
 
 				for (size_t n = 3; n < count; ++n)
 				{
-					if (is_cw_)
-					{
-						triangle_index_.push_back(
-							UMVec3ui(
-								(*vertex_index_)[begin_index + 0],
-								(*vertex_index_)[begin_index + n-1],
-								(*vertex_index_)[begin_index + n]));
-					}
-					else
-					{
-						triangle_index_.push_back(
-							UMVec3ui(
-								(*vertex_index_)[begin_index + 0],
-								(*vertex_index_)[begin_index + n],
-								(*vertex_index_)[begin_index + n-1]));
-					}
+					triangle_index_.push_back(
+						UMVec3ui(
+							(*vertex_index_)[begin_index + 0],
+							(*vertex_index_)[begin_index + n-1],
+							(*vertex_index_)[begin_index + n]));
 				}
 			}
 		}
@@ -680,43 +515,20 @@ void UMAbcMesh::Impl::update_vertex_index(IPolyMeshSchema::Sample& sample)
 
 		if (count > 2)
 		{
-			if (is_cw_)
-			{
-				// this is alembic default
-				triangle_index_.push_back(
-					UMVec3ui(
-					(*vertex_index_)[face_index_begin + 0],
-					(*vertex_index_)[face_index_begin + 1],
-					(*vertex_index_)[face_index_begin + 2]));
-			}
-			else
-			{
-				// wrong data. flip.
-				triangle_index_.push_back(
-					UMVec3ui(
-					(*vertex_index_)[face_index_begin + 0],
-					(*vertex_index_)[face_index_begin + 2],
-					(*vertex_index_)[face_index_begin + 1]));
-			}
+			// this is alembic default
+			triangle_index_.push_back(
+				UMVec3ui(
+				(*vertex_index_)[face_index_begin + 0],
+				(*vertex_index_)[face_index_begin + 1],
+				(*vertex_index_)[face_index_begin + 2]));
 
 			for (size_t i = 3; i < count; ++i)
 			{
-				if (is_cw_)
-				{
-					triangle_index_.push_back(
-						UMVec3ui(
-							(*vertex_index_)[face_index_begin + 0],
-							(*vertex_index_)[face_index_begin + i-1],
-							(*vertex_index_)[face_index_begin + i]));
-				}
-				else
-				{
-					triangle_index_.push_back(
-						UMVec3ui(
-							(*vertex_index_)[face_index_begin + 0],
-							(*vertex_index_)[face_index_begin + i],
-							(*vertex_index_)[face_index_begin + i-1]));
-				}
+				triangle_index_.push_back(
+					UMVec3ui(
+						(*vertex_index_)[face_index_begin + 0],
+						(*vertex_index_)[face_index_begin + i-1],
+						(*vertex_index_)[face_index_begin + i]));
 			}
 		}
 	}
@@ -844,37 +656,6 @@ int UMAbcMesh::Impl::polygon_count() const
 	return static_cast<int>(triangle_index_.size());
 }
 
-///**
-// * draw
-// */
-//void UMAbcMesh::Impl::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	if (!is_valid()) return;
-//	if (triangle_index_.empty()) return;
-//	if (!vertex_) return;
-//	
-//#ifdef WITH_OPENGL
-//	if (type == UMAbc::eOpenGL && !umdraw::UMDirectX11::current_device_pointer())
-//	{
-//		if (opengl_mesh_)
-//		{
-//			opengl_mesh_->draw(umdraw::UMOpenGLDrawParameterPtr());
-//		}
-//	}
-//#endif // WITH_OPENGL
-//
-//#ifdef WITH_DIRECTX
-//	if (type == UMAbc::eDirectX && umdraw::UMDirectX11::current_device_pointer())
-//	{
-//		if (directx_mesh_)
-//		{
-//			directx_mesh_->draw(
-//				reinterpret_cast<ID3D11Device*>(umdraw::UMDirectX11::current_device_pointer()));
-//		}
-//	}
-//#endif // WITH_DIRECTX
-//}
-
 /** 
  * get material from vertex index
  */
@@ -923,33 +704,6 @@ void UMAbcMesh::set_current_time(unsigned long time, bool recursive)
 void UMAbcMesh::update_box(bool recursive)
 {
 	impl_->update_box(recursive);
-}
-
-///**
-// * draw
-// * @param [in] recursive do children recursively
-// */
-//void UMAbcMesh::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	impl_->draw(recursive, type);
-//	UMAbcObject::draw(recursive, type);
-//}
-
-
-/**
-* get opengl mesh
-*/
-UMOpenGLAbcMeshPtr UMAbcMesh::opengl_mesh()
-{
-	return impl_->opengl_mesh();
-}
-
-/**
-* get directx mesh
-*/
-UMDirectX11AbcMeshPtr UMAbcMesh::directx_mesh()
-{
-	return impl_->directx_mesh();
 }
 
 /**
@@ -1016,14 +770,6 @@ const std::vector<umstring>& UMAbcMesh::faceset_name_list() const
 const std::vector<int>& UMAbcMesh::faceset_polycount_list() const
 {
 	return impl_->faceset_polycount_list();
-}
-
-/**
-* set cw or not
-*/
-void UMAbcMesh::set_cw(bool is_cw)
-{
-	impl_->set_cw(is_cw);
 }
 
 UMAbcObjectPtr UMAbcMesh::self_reference()

@@ -52,12 +52,6 @@ namespace umabc
 		*/
 		virtual void update_box(bool recursive);
 
-		///**
-		//* draw
-		//* @param [in] recursive do children recursively
-		//*/
-		//virtual void draw(bool recursive, UMAbc::DrawType type);
-		
 		virtual UMAbcObjectPtr self_reference()
 		{
 			return self_reference_.lock();
@@ -189,13 +183,6 @@ void UMAbcXform::Impl::update_box(bool recursive)
 	}
 }
 
-///**
-// * refresh
-// */
-//void UMAbcXform::Impl::draw(bool recursive, UMAbc::DrawType type)
-//{
-//}
-
 /**
 * initialize
 * @param [in] recursive do children recursively
@@ -226,16 +213,6 @@ void UMAbcXform::update_box(bool recursive)
 {
 	impl_->update_box(recursive);
 }
-
-///**
-//* draw
-//* @param [in] recursive do children recursively
-//*/
-//void UMAbcXform::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	impl_->draw(recursive, type);
-//	UMAbcObject::draw(recursive, type);
-//}
 
 UMAbcObjectPtr UMAbcXform::self_reference()
 {

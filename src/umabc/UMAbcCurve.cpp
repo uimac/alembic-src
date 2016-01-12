@@ -50,12 +50,6 @@ namespace umabc
 		*/
 		virtual void update_box(bool recursive);
 
-		///**
-		//* draw
-		//* @param [in] recursive do children recursively
-		//*/
-		//virtual void draw(bool recursive, UMAbc::DrawType type);
-
 		/**
 		* update curve all
 		*/
@@ -68,10 +62,20 @@ namespace umabc
 		}
 
 		UMAbcCurveWeakPtr self_reference_;
+
+		Alembic::AbcGeom::P3fArraySamplePtr positions() const { return positions_; }
+
+		unsigned int curve_count() const { return curve_count_; }
+
+		Alembic::AbcGeom::Int32ArraySamplePtr vertex_count() const { return vertex_count_; }
+
+		const std::vector<int>& vertex_count_list() const { return vertex_count_list_; }
+
 	private:
 		ICurvesPtr curves_;
 		Alembic::AbcGeom::P3fArraySamplePtr positions_;
 		Alembic::AbcGeom::Int32ArraySamplePtr vertex_count_;
+		std::vector<int> vertex_count_list_;
 		size_t curve_count_;
 
 		Alembic::AbcGeom::ICurvesSchema::Sample initial_sample_;
@@ -147,7 +151,8 @@ void UMAbcCurve::Impl::update_curve_all()
 	positions_ = sample.getPositions();
 	curve_count_ = sample.getNumCurves();
 	vertex_count_ = sample.getCurvesNumVertices();
-
+	vertex_count_list_.resize(vertex_count_->size());
+	memcpy(&(*vertex_count_list_.begin()), vertex_count_->getData(), vertex_count_->size() * 4);
 }
 
 /**
@@ -203,15 +208,33 @@ void UMAbcCurve::update_box(bool recursive)
 	impl_->update_box(recursive);
 }
 
-///**
-//* draw
-//* @param [in] recursive do children recursively
-//*/
-//void UMAbcCurve::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	impl_->draw(recursive, type);
-//	UMAbcObject::draw(recursive, type);
-//}
+/**
+* curve count
+*/
+unsigned int UMAbcCurve::curve_count() const
+{
+	return impl_->curve_count();
+}
+
+/**
+* num verts
+*/
+const std::vector<int>& UMAbcCurve::num_vertices() const
+{
+	return impl_->vertex_count_list();
+}
+
+/**
+* get position
+*/
+const Imath::V3f * UMAbcCurve::positions() const
+{
+	if (impl_->positions()) {
+		return impl_->positions()->get();
+	}
+	return NULL;
+}
+
 
 /**
 * update curve all

@@ -36,11 +36,6 @@ namespace umdraw
 class UMCamera;
 typedef std::shared_ptr<UMCamera> UMCameraPtr;
 
-class UMOpenGLCamera;
-typedef std::shared_ptr<UMOpenGLCamera> UMOpenGLCameraPtr;
-
-class UMDirectX11Camera;
-typedef std::shared_ptr<UMDirectX11Camera> UMDirectX11CameraPtr;
 } // umdraw
 
 namespace umabc
@@ -82,12 +77,6 @@ public:
 	 * @param [in] recursive do children recursively
 	 */
 	virtual void update_box(bool recursive);
-
-	///**
-	// * draw
-	// * @param [in] recursive do children recursively
-	// */
-	//virtual void draw(bool recursive, UMAbc::DrawType type);
 
 	/**
 	 * get umcamera

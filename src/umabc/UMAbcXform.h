@@ -65,13 +65,7 @@ public:
 	 * @param [in] recursive do children recursively
 	 */
 	virtual void update_box(bool recursive);
-
-	///**
-	// * draw
-	// * @param [in] recursive do children recursively
-	// */
-	//virtual void draw(bool recursive, UMAbc::DrawType type);
-
+	
 	/**
 	* get current time
 	*/

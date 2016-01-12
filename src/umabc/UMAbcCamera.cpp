@@ -67,8 +67,6 @@ namespace umabc
 		Alembic::AbcGeom::CameraSample sample_;
 
 		umdraw::UMCameraPtr umcamera_;
-		umdraw::UMOpenGLCameraPtr opengl_camera_;
-		umdraw::UMDirectX11CameraPtr directx_camera_;
 	};
 
 
@@ -90,20 +88,6 @@ bool UMAbcCamera::Impl::init(bool recursive)
 			TimeSamplingPtr time = schema.getTimeSampling();
 		}
 	}
-
-#ifdef WITH_OPENGL
-	if (umcamera_)
-	{
-		opengl_camera_ = std::make_shared<umdraw::UMOpenGLCamera>(umcamera_);
-	}
-#endif // WITH_OPENGL
-
-#ifdef WITH_DIRECTX
-	if (umcamera_)
-	{
-		directx_camera_ = std::make_shared<umdraw::UMDirectX11Camera>(umcamera_);
-	}
-#endif // WITH_DIRECTX
 	return true;
 }
 
@@ -177,14 +161,6 @@ void UMAbcCamera::set_current_time(unsigned long time, bool recursive)
 void UMAbcCamera::update_box(bool recursive)
 {
 }
-
-///**
-// * refresh
-// */
-//void UMAbcCamera::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	UMAbcObject::draw(recursive, type);
-//}
 
 /**
 * get umcamera
