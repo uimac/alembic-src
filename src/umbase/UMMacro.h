@@ -50,10 +50,10 @@ namespace umbase
 /**
  * string
  */
-#ifdef WITH_EMSCRIPTEN
-	typedef std::string umstring;
-	typedef std::wstring umtextstring;
+#ifdef _WIN32
+    typedef std::u16string umstring;
+    typedef std::wstring umtextstring;
 #else
-	typedef std::u16string umstring;
-	typedef std::wstring umtextstring;
+    typedef std::string umstring;
+    typedef std::string umtextstring;
 #endif

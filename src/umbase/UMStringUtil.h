@@ -70,10 +70,8 @@ public:
 		const char16_t* p = reinterpret_cast<const char16_t*>(str.c_str());
 		umstring u16str(p);
 #else
-		umstring u16str;
-		u16str.resize(str.size());
-		const wchar_t* orig = str.c_str();
-		wcsnrtombs(&u16str[0], &orig, str.size(), str.size(), NULL);
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>,wchar_t> convert;
+        umstring u16str = convert.to_bytes(str);
 #endif
 		return u16str;
 	}
@@ -99,8 +97,8 @@ public:
 	static std::string wstring_to_utf8(const std::wstring& str)
 	{
 #if defined _WIN32 && !defined (WITH_EMSCRIPTEN)
-		const char16_t* p = reinterpret_cast<const char16_t*>(str.c_str());
-		std::string utf8str = UMStringUtil::utf16_to_utf8(umstring(p));
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> convert;
+        std::string utf8str = convert.to_bytes(str);
 #else
 		// not implemented
 		umstring utf8str;
@@ -144,13 +142,8 @@ public:
 		 */
 		static std::u32string utf8_to_utf32(const std::string& str)
 		{
-	#if defined _WIN32
 			std::wstring_convert<std::codecvt_utf8<char32_t>,char32_t> convert;
 			std::u32string u32str = convert.from_bytes(str);
-	#else
-			// not implemented
-			umstring u32str;
-	#endif
 			return u32str;
 		}
 #endif //  !defined (WITH_EMSCRIPTEN)

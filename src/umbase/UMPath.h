@@ -42,7 +42,7 @@ public:
 
 	static umstring module_absolute_path();
 
-	static umstring resource_absolute_path(const umstring& file_name);
+	//static umstring resource_absolute_path(const umstring& file_name);
 
 	static umstring resource_absolute_path(const std::string& file_name);
 

@@ -217,10 +217,11 @@ bool UMAbcSoftwareIO::import_material_map(
 			if (current_mat 
 				&& (iss >> texture_name))
 			{
+                umstring tex = umbase::UMStringUtil::utf8_to_utf16(texture_name);
 				umstring path = 
 					umbase::UMPath::get_absolute_path(
 					abc_mtl_filepath,
-					umbase::UMStringUtil::utf8_to_utf16(texture_name));
+					tex);
 
 				current_mat->mutable_texture_path_list().push_back(path);
 			}

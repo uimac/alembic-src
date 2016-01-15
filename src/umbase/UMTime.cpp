@@ -8,11 +8,9 @@
  *
  */
 
-#ifdef WITH_EMSCRIPTEN
-	#include <GL/glfw3.h>
-#else
-	#include <windows.h>
-	#include <Mmsystem.h>
+#ifdef _WIN32
+#include <windows.h>
+#include <Mmsystem.h>
 #endif
 
 #include <string>
@@ -56,22 +54,22 @@ UMTime::~UMTime()
 		+ "ms\n"
 		);
 	
-#ifdef WITH_EMSCRIPTEN
-	printf("%s\n", message.c_str());
+#ifdef _WIN32
+    ::OutputDebugStringA(message.c_str());
+    std::cout << message << std::endl;
+    
+    if (show_message_box_) {
+        ::MessageBoxA(NULL, message.c_str(), "hoge", MB_OK);
+    }
 #else
-	::OutputDebugStringA(message.c_str());
-	std::cout << message << std::endl;
-
-	if (show_message_box_) {
-		::MessageBoxA(NULL, message.c_str(), "hoge", MB_OK);
-	}
+    printf("%s\n", message.c_str());
 #endif
 }
 
 unsigned int UMTime::current_time() 
 {
 #ifdef WITH_EMSCRIPTEN
-	return static_cast<unsigned int>(glfwGetTime() * 1000.0);
+	return 0;
 #else
 	#ifdef _WIN32
 		return static_cast<unsigned int>(::timeGetTime());
