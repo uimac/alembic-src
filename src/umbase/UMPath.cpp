@@ -143,7 +143,7 @@ umstring UMPath::module_absolute_path()
 #endif // _WIN32
 }
     
-static umstring resource_absolute_path(const umstring& file_name)
+static umstring resource_absolute_path_(const umstring& file_name)
     {
 #ifdef _WIN32
         TCHAR path[1024];
@@ -171,7 +171,7 @@ static umstring resource_absolute_path(const umstring& file_name)
 umstring UMPath::resource_absolute_path(const std::string& file_name)
 {
 	umstring utf16name = UMStringUtil::utf8_to_utf16(file_name);
-	return resource_absolute_path(utf16name);
+	return resource_absolute_path_(utf16name);
 }
 #endif // _WIN32
 
