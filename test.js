@@ -2,7 +2,7 @@
 (function () {
 	"use strict";
 	var path = require("path"),
-		abcio = require('umabcio');
+		abcio = require('alembic');
 
 	function loadtest() {
 		var file = "alembic_octopus.abc",

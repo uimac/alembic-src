@@ -1,9 +1,36 @@
-# umabcio
-alembic io
+# alembic
+alembic node.js native plugin
 
+## install
 ```
-npm install https://github.com/uimac/umabcio/
+npm install alembic
 ```
+
+## build
+```
+npm install alembic-src
+```
+
+## Features
+
+|feature|current status|
+| --------------- |---------------|
+| load | o |
+| save | x |
+| change time | o |
+
+|primitive|current status|
+| --------------- |---------------|
+| mesh | o |
+| point | o |
+| curve | x |
+| nurbs | x |
+| camera | only transform |
+| material | x |
+| light | x |
+
+## Usage
+
 
 put alembc_octopus for test
 ```
@@ -24,3 +51,6 @@ hogehoge
 [ '/octopus_low/octopus_lowShape' ]
 { min: 0, max: 2083 }
 ```
+
+## License
+MIT
