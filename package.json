@@ -1,12 +1,25 @@
 {
-  "name": "umabcio",
-  "version": "0.0.1",
-  "description": "alembic io",
-  "main": "index.js",
-  "author": "Kazuma Hatta",
-  "license": "MIT",
-  "scripts": {
-    "install": "node-gyp rebuild --target=0.36.2 --arch=x64 --dist-url=https://atom.io/download/atom-shell --msvs_version=2013"
-  },
-  "gypfile": true
+	"name": "alembic",
+	"version": "0.0.1",
+	"description": "alembic io",
+	"main": "index.js",
+	"author": "Kazuma Hatta",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/uimac/alembic.git"
+	},
+	"keywords": [
+		"node.js",
+		"alembic",
+		"geometry cache"
+	],
+	"homepage": "ttps://github.com/uimac/alembic",
+	"scripts": {
+		"install": "node-gyp rebuild --target=0.36.5 --arch=x64 --dist-url=https://atom.io/download/atom-shell --msvs_version=2013"
+	},
+	"os" : [ "win32", "darwin" ],
+	"cpu" : [ "x64" ],
+	"private": false,
+	"gypfile": true
 }
