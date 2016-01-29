@@ -63,7 +63,23 @@ namespace umabc
 		*/
 		void update_patch_all();
 
+		virtual UMAbcObjectPtr self_reference()
+		{
+			return self_reference_.lock();
+		}
+
 		UMAbcNurbsPatchWeakPtr self_reference_;
+
+		Alembic::AbcGeom::P3fArraySamplePtr positions() const { return positions_; }
+
+		Alembic::AbcGeom::FloatArraySamplePtr u_knot_list() const { return v_knot_; }
+		Alembic::AbcGeom::FloatArraySamplePtr v_knot_list() const { return u_knot_; }
+
+		unsigned int u_size() const { return u_size_; }
+		unsigned int v_size() const { return v_size_; }
+
+		int u_order() const { return u_order_; }
+		int v_order() const { return v_order_; }
 
 	private:
 		INuPatchPtr patch_;
@@ -198,6 +214,104 @@ void UMAbcNurbsPatch::set_current_time(unsigned long time, bool recursive)
 	if (!impl_->is_valid()) return;
 	UMAbcObject::set_current_time(time, recursive);
 	impl_->set_current_time(time, recursive);
+}
+
+/**
+* get position
+*/
+const Imath::V3f * UMAbcNurbsPatch::positions() const
+{
+	if (impl_->positions()) {
+		return impl_->positions()->get();
+	}
+	return NULL;
+}
+
+/**
+* get position size
+*/
+unsigned int UMAbcNurbsPatch::position_size() const
+{
+	if (impl_->positions()) {
+		return impl_->positions()->size();
+	}
+	return 0;
+}
+
+/**
+* get u knots
+*/
+const float * UMAbcNurbsPatch::u_knots() const
+{
+	if (impl_->u_knot_list()) {
+		return impl_->u_knot_list()->get();
+	}
+	return NULL;
+}
+
+/**
+* get u knots size
+*/
+unsigned int UMAbcNurbsPatch::u_knot_size() const
+{
+	if (impl_->u_knot_list()) {
+		return impl_->u_knot_list()->size();
+	}
+	return 0;
+}
+
+/**
+* get v knots
+*/
+const float * UMAbcNurbsPatch::v_knots() const
+{
+	if (impl_->v_knot_list()) {
+		return impl_->v_knot_list()->get();
+	}
+	return 0;
+}
+
+/**
+* get v knots size
+*/
+unsigned int UMAbcNurbsPatch::v_knot_size() const
+{
+	if (impl_->v_knot_list()) {
+		return impl_->v_knot_list()->size();
+	}
+	return 0;
+}
+
+/**
+* get u_size
+*/
+unsigned int UMAbcNurbsPatch::u_size() const
+{
+	return impl_->u_size();
+}
+
+/**
+* get v_size
+*/
+unsigned int UMAbcNurbsPatch::v_size() const
+{
+	return impl_->v_size();
+}
+
+/**
+* get u_order
+*/
+int UMAbcNurbsPatch::u_order() const
+{
+	return impl_->u_order();
+}
+
+/**
+* get v_order
+*/
+int UMAbcNurbsPatch::v_order() const
+{
+	return impl_->v_order();
 }
 
 /**

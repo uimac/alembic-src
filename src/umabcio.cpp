@@ -150,7 +150,7 @@ public:
 	void get_nurbs_path_list(const FunctionCallbackInfo<Value>& args) {
 		Isolate* isolate = Isolate::GetCurrent();
 		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
-		std::vector<std::string> path_list = scene->curve_path_list();
+		std::vector<std::string> path_list = scene->nurbs_path_list();
 		const int list_size = static_cast<int>(path_list.size());
 		Local<Array> result = Array::New(isolate, list_size);
 		for (int i = 0; i < list_size; ++i) {
@@ -323,10 +323,39 @@ public:
 		std::string object_path(*utf8path);
 		Local<Object> result = Object::New(isolate);
 
-		umabc::UMAbcNurbsPatchPtr curve = std::dynamic_pointer_cast<umabc::UMAbcNurbsPatch>(scene->find_object(object_path));
-		if (curve)
+		umabc::UMAbcNurbsPatchPtr nurbs = std::dynamic_pointer_cast<umabc::UMAbcNurbsPatch>(scene->find_object(object_path));
+		if (nurbs)
 		{
-			assign_transform(result, curve);
+			if (nurbs->position_size() > 0)
+			{
+				Local<ArrayBuffer> positions = v8::ArrayBuffer::New(isolate, nurbs->position_size() * sizeof(Imath::V3f));
+				ArrayBuffer::Contents contents = positions->GetContents();
+				memcpy(contents.Data(), nurbs->positions(), nurbs->position_size() * sizeof(Imath::V3f));
+				result->Set(String::NewFromUtf8(isolate, "position"), Float32Array::New(positions, 0, nurbs->position_size() * 3));
+			}
+
+			if (nurbs->u_knot_size() > 0)
+			{
+				Local<ArrayBuffer> u_knots = v8::ArrayBuffer::New(isolate, nurbs->u_knot_size() * sizeof(float));
+				ArrayBuffer::Contents contents = u_knots->GetContents();
+				memcpy(contents.Data(), nurbs->u_knots(), nurbs->u_knot_size() * sizeof(float));
+				result->Set(String::NewFromUtf8(isolate, "u_knot"), Float32Array::New(u_knots, 0, nurbs->u_knot_size()));
+			}
+
+			if (nurbs->v_knot_size() > 0)
+			{
+				Local<ArrayBuffer> v_knots = v8::ArrayBuffer::New(isolate, nurbs->v_knot_size() * sizeof(float));
+				ArrayBuffer::Contents contents = v_knots->GetContents();
+				memcpy(contents.Data(), nurbs->v_knots(), nurbs->v_knot_size() * sizeof(float));
+				result->Set(String::NewFromUtf8(isolate, "v_knot"), Float32Array::New(v_knots, 0, nurbs->v_knot_size()));
+			}
+
+			result->Set(String::NewFromUtf8(isolate, "u_size"), Uint32::New(isolate, nurbs->u_size()));
+			result->Set(String::NewFromUtf8(isolate, "v_size"), Uint32::New(isolate, nurbs->v_size()));
+			result->Set(String::NewFromUtf8(isolate, "u_order"), Uint32::New(isolate, nurbs->u_order()));
+			result->Set(String::NewFromUtf8(isolate, "v_order"), Uint32::New(isolate, nurbs->v_order()));
+
+			assign_transform(result, nurbs);
 		}
 		args.GetReturnValue().Set(result);
 	}

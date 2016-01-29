@@ -74,7 +74,58 @@ public:
 	// * @param [in] recursive do children recursively
 	// */
 	//virtual void draw(bool recursive, UMAbc::DrawType type);
-	
+
+	/**
+	* get position
+	*/
+	const Imath::V3f * positions() const;
+
+	/**
+	* get position size
+	*/
+	unsigned int position_size() const;
+
+	/**
+	 * get u_knots
+	 */
+	const float * u_knots() const;
+
+	/**
+	* get u_knot size
+	*/
+	unsigned int u_knot_size() const;
+
+	/**
+	* get v_knots
+	*/
+	const float * v_knots() const;
+
+	/**
+	* get v_knot size
+	*/
+	unsigned int v_knot_size() const;
+
+	/**
+	* get u_size
+	*/
+	unsigned int u_size() const;
+
+	/**
+	* get v_size
+	*/
+	unsigned int v_size() const;
+
+	/**
+	* get u_order
+	*/
+	int u_order() const;
+
+	/**
+	* get v_order
+	*/
+	int v_order() const;
+
+
 	/**
 	 * update patch all
 	 */
