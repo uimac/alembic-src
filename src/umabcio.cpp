@@ -292,6 +292,24 @@ public:
 		umabc::UMAbcCurvePtr curve = std::dynamic_pointer_cast<umabc::UMAbcCurve>(scene->find_object(object_path));
 		if (curve)
 		{
+			if (curve->position_size() > 0)
+			{
+				Local<ArrayBuffer> positions = v8::ArrayBuffer::New(isolate, curve->position_size() * sizeof(Imath::V3f));
+				ArrayBuffer::Contents contents = positions->GetContents();
+				memcpy(contents.Data(), curve->positions(), curve->position_size() * sizeof(Imath::V3f));
+				result->Set(String::NewFromUtf8(isolate, "position"), Float32Array::New(positions, 0, curve->position_size() * 3));
+			}
+
+			if (curve->vertex_count_list().size() > 0)
+			{
+				Local<ArrayBuffer> indices = v8::ArrayBuffer::New(isolate, curve->vertex_count_list().size() * sizeof(int));
+				ArrayBuffer::Contents contents = indices->GetContents();
+				memcpy(contents.Data(), &curve->vertex_count_list()[0], curve->vertex_count_list().size() * sizeof(int));
+				result->Set(String::NewFromUtf8(isolate, "vertex_count_list"), Int32Array::New(indices, 0, curve->vertex_count_list().size()));
+			}
+
+			result->Set(String::NewFromUtf8(isolate, "curve"), Int32::New(isolate, curve->curve_count()));
+
 			assign_transform(result, curve);
 		}
 		args.GetReturnValue().Set(result);

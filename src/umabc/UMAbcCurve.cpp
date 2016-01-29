@@ -219,7 +219,7 @@ unsigned int UMAbcCurve::curve_count() const
 /**
 * num verts
 */
-const std::vector<int>& UMAbcCurve::num_vertices() const
+const std::vector<int>& UMAbcCurve::vertex_count_list() const
 {
 	return impl_->vertex_count_list();
 }
@@ -233,6 +233,17 @@ const Imath::V3f * UMAbcCurve::positions() const
 		return impl_->positions()->get();
 	}
 	return NULL;
+}
+
+/**
+* get position size
+*/
+unsigned int UMAbcCurve::position_size() const
+{
+	if (impl_->positions()) {
+		return impl_->positions()->size();
+	}
+	return 0;
 }
 
 

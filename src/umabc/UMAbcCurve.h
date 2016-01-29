@@ -78,13 +78,17 @@ public:
 	/**
 	 * num verts
 	 */
-	const std::vector<int>& num_vertices() const;
+	const std::vector<int>& vertex_count_list() const;
 
 	/**
 	* get position
 	*/
 	const Imath::V3f * positions() const;
 
+	/**
+	* get position size
+	*/
+	unsigned int position_size() const;
 	
 	/**
 	 * update curve all
