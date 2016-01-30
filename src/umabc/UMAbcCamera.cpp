@@ -11,14 +11,6 @@
 
 #include "UMAbcCamera.h"
 
-#ifdef WITH_OPENGL
-	#include "UMOpenGLCamera.h"
-#endif
-
-#ifdef WITH_DIRECTX
-	#include "UMDirectX11Camera.h"
-#endif
-
 //#include "UMCamera.h"
 
 #include <algorithm>

@@ -151,13 +151,6 @@ bool UMAbcPoint::Impl::init(bool recursive)
 			self_reference()->set_max_time(static_cast<unsigned long>(time->getSampleTime(num_samples - 1) * 1000));
 		}
 	}
-	
-#ifdef WITH_OPENGL
-	if (UMAbcPointPtr self = self_reference_.lock())
-	{
-		opengl_point_ = UMOpenGLAbcPointPtr(new UMOpenGLAbcPoint(self));
-	}
-#endif // WITH_OPENGL
 	return true;
 }
 
