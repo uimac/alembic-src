@@ -31,12 +31,12 @@ namespace Alembic
 	}
 }
 
-namespace umdraw
-{
-	class UMMaterial;
-	typedef std::shared_ptr<UMMaterial> UMMaterialPtr;
-	typedef std::vector<UMMaterialPtr> UMMaterialList;
-}
+//namespace umdraw
+//{
+//	class UMMaterial;
+//	typedef std::shared_ptr<UMMaterial> UMMaterialPtr;
+//	typedef std::vector<UMMaterialPtr> UMMaterialList;
+//}
 
 namespace umabc
 {
@@ -100,20 +100,20 @@ public:
 	 */
 	void update_mesh_all();
 
-	/**
-	 * get material list
-	 */
-	const umdraw::UMMaterialList& material_list() const;
-	
-	/**
-	 * get material list
-	 */
-	umdraw::UMMaterialList& mutable_material_list();
+	///**
+	// * get material list
+	// */
+	//const umdraw::UMMaterialList& material_list() const;
+	//
+	///**
+	// * get material list
+	// */
+	//umdraw::UMMaterialList& mutable_material_list();
 
-	/**
-	 * get material from face index
-	 */
-	umdraw::UMMaterialPtr material_from_face_index(int face_index) const;
+	///**
+	// * get material from face index
+	// */
+	//umdraw::UMMaterialPtr material_from_face_index(int face_index) const;
 
 	/**
 	 * get faceset name list

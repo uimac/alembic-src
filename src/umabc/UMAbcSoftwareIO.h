@@ -15,13 +15,13 @@
 #include <vector>
 #include "UMMacro.h"
 #include "UMAbcSetting.h"
-#include "UMMaterial.h"
+//#include "UMMaterial.h"
 
-namespace umdraw
-{
-	class UMMesh;
-	typedef std::shared_ptr<UMMesh> UMMeshPtr;
-}
+//namespace umdraw
+//{
+//	class UMMesh;
+//	typedef std::shared_ptr<UMMesh> UMMeshPtr;
+//}
 
 /// uimac alembic library
 namespace umabc
@@ -39,7 +39,7 @@ typedef std::shared_ptr<UMAbcMesh> UMAbcMeshPtr;
 class UMAbcSoftwareIO;
 typedef std::shared_ptr<UMAbcSoftwareIO> UMAbcSoftwareIOPtr;
 
-typedef std::vector<umdraw::UMMaterialMap> UMAbcSceneMaterialList;
+//typedef std::vector<umdraw::UMMaterialMap> UMAbcSceneMaterialList;
 
 class UMAbcSoftwareIO
 {
@@ -74,32 +74,32 @@ public:
 	 */
 	bool save_setting(std::string path, const UMAbcSetting& setting);
 
-	/** 
-	 * import umabc materials
-	 * @param [out] dst destination material list
-	 * @param [in] abc_mtl_filepath material file path
-	 */
-	static bool import_material_map(
-		umdraw::UMMaterialMap& dst, 
-		const umstring& abc_mtl_filepath);
-	
-	/**
-	 * convert abc mesh to mesh
-	 * @param [in] src source abc mesh
-	 * @retval UMMeshPtr converted mesh or none
-	 */
-	static umdraw::UMMeshPtr convert_abc_mesh_to_mesh(
-		umabc::UMAbcMeshPtr src);
+	///** 
+	// * import umabc materials
+	// * @param [out] dst destination material list
+	// * @param [in] abc_mtl_filepath material file path
+	// */
+	//static bool import_material_map(
+	//	umdraw::UMMaterialMap& dst, 
+	//	const umstring& abc_mtl_filepath);
+	//
+	///**
+	// * convert abc mesh to mesh
+	// * @param [in] src source abc mesh
+	// * @retval UMMeshPtr converted mesh or none
+	// */
+	//static umdraw::UMMeshPtr convert_abc_mesh_to_mesh(
+	//	umabc::UMAbcMeshPtr src);
 
 	/**
 	 * convert ccw(wrong) mesh to cw mesh
 	 */
-	static void convert_abc_mesh_ccw_to_cw(umabc::UMAbcObjectPtr src);
+	//static void convert_abc_mesh_ccw_to_cw(umabc::UMAbcObjectPtr src);
 
 	/**
 	 * assign default material to scene
 	 */
-	static void assign_default_material(UMAbcScenePtr scene);
+	//static void assign_default_material(UMAbcScenePtr scene);
 
 private:
 };

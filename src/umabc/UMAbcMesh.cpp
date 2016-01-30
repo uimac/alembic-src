@@ -17,7 +17,7 @@
 #include "UMAbcMesh.h"
 #include "UMStringUtil.h"
 #include "UMAbcConvert.h"
-#include "UMMaterial.h"
+//#include "UMMaterial.h"
 
 namespace umabc
 {
@@ -74,20 +74,20 @@ namespace umabc
 		IndexList& triangle_index() { return triangle_index_; }
 		std::vector<Imath::V3f>& normals() { return original_normal_; }
 
-		/**
-		* get material list
-		*/
-		const umdraw::UMMaterialList& material_list() const { return material_list_; }
+		///**
+		//* get material list
+		//*/
+		//const umdraw::UMMaterialList& material_list() const { return material_list_; }
 
-		/**
-		* get material list
-		*/
-		umdraw::UMMaterialList& mutable_material_list() { return material_list_; }
+		///**
+		//* get material list
+		//*/
+		//umdraw::UMMaterialList& mutable_material_list() { return material_list_; }
 
-		/**
-		* get material from face index
-		*/
-		umdraw::UMMaterialPtr material_from_face_index(int face_index) const;
+		///**
+		//* get material from face index
+		//*/
+		//umdraw::UMMaterialPtr material_from_face_index(int face_index) const;
 
 		/**
 		* get faceset name list
@@ -134,7 +134,7 @@ namespace umabc
 		/**
 		* update material (face set)
 		*/
-		void update_material();
+		//void update_material();
 
 		IPolyMeshPtr poly_mesh_;
 		Alembic::AbcGeom::IPolyMeshSchema::Sample initial_sample_;
@@ -152,7 +152,7 @@ namespace umabc
 
 		IndexList triangle_index_;
 
-		umdraw::UMMaterialList material_list_;
+		//umdraw::UMMaterialList material_list_;
 		std::vector<umstring> faceset_name_list_;
 		std::vector<std::string> faceset_names_;
 		std::vector<int> faceset_polycount_list_;
@@ -451,7 +451,7 @@ void UMAbcMesh::Impl::update_vertex_index_by_faceset(IPolyMeshSchema::Sample& sa
 		faceset_polycount_list_.push_back(static_cast<int>(triangle_index_.size()) - pre_polygon_count);
 	}
 		
-	update_material();
+	//update_material();
 }
 
 /**
@@ -590,35 +590,35 @@ void UMAbcMesh::Impl::update_mesh_all()
 	update_uv();
 }
 
-void UMAbcMesh::Impl::update_material()
-{
-	umdraw::UMMaterialList sorted_material_list;
-	sorted_material_list.reserve(material_list().size());
-
-	for (int i = 0, size = static_cast<int>(faceset_names_.size()); i < size; ++i)
-	{
-		umstring name = faceset_name_list_.at(i);
-		umdraw::UMMaterialList::iterator it = mutable_material_list().begin();
-		for (; it != mutable_material_list().end(); ++it)
-		{
-			umdraw::UMMaterialPtr mat = *it;
-			if (mat->name() == name)
-			{
-				if (mat->polygon_count() != faceset_polycount_list().at(i))
-				{
-					printf("diff %s, %s, %d, %d\n", umbase::UMStringUtil::utf16_to_utf8(name).c_str(), faceset_names_.at(i).c_str(), mat->polygon_count() ,faceset_polycount_list().at(i));
-				}
-				mat->set_polygon_count(faceset_polycount_list().at(i));
-				sorted_material_list.push_back(mat);
-				break;
-			}
-		}
-	}
-	if (material_list_.size() == sorted_material_list.size())
-	{
-		material_list_ = sorted_material_list;
-	}
-}
+//void UMAbcMesh::Impl::update_material()
+//{
+//	umdraw::UMMaterialList sorted_material_list;
+//	sorted_material_list.reserve(material_list().size());
+//
+//	for (int i = 0, size = static_cast<int>(faceset_names_.size()); i < size; ++i)
+//	{
+//		umstring name = faceset_name_list_.at(i);
+//		umdraw::UMMaterialList::iterator it = mutable_material_list().begin();
+//		for (; it != mutable_material_list().end(); ++it)
+//		{
+//			umdraw::UMMaterialPtr mat = *it;
+//			if (mat->name() == name)
+//			{
+//				if (mat->polygon_count() != faceset_polycount_list().at(i))
+//				{
+//					printf("diff %s, %s, %d, %d\n", umbase::UMStringUtil::utf16_to_utf8(name).c_str(), faceset_names_.at(i).c_str(), mat->polygon_count() ,faceset_polycount_list().at(i));
+//				}
+//				mat->set_polygon_count(faceset_polycount_list().at(i));
+//				sorted_material_list.push_back(mat);
+//				break;
+//			}
+//		}
+//	}
+//	if (material_list_.size() == sorted_material_list.size())
+//	{
+//		material_list_ = sorted_material_list;
+//	}
+//}
 
 /**
  * update box
@@ -656,23 +656,23 @@ int UMAbcMesh::Impl::polygon_count() const
 	return static_cast<int>(triangle_index_.size());
 }
 
-/** 
- * get material from vertex index
- */
-umdraw::UMMaterialPtr UMAbcMesh::Impl::material_from_face_index(int face_index) const
-{
-	int pos = 0;
-	umdraw::UMMaterialList::const_iterator it = material_list_.begin();
-	for (; it != material_list_.end(); ++it)
-	{
-		const int polygon_count = (*it)->polygon_count();
-		if (face_index >= pos && face_index < (pos+polygon_count)) {
-			return *it;
-		}
-		pos += polygon_count;
-	}
-	return umdraw::UMMaterialPtr();
-}
+///** 
+// * get material from vertex index
+// */
+//umdraw::UMMaterialPtr UMAbcMesh::Impl::material_from_face_index(int face_index) const
+//{
+//	int pos = 0;
+//	umdraw::UMMaterialList::const_iterator it = material_list_.begin();
+//	for (; it != material_list_.end(); ++it)
+//	{
+//		const int polygon_count = (*it)->polygon_count();
+//		if (face_index >= pos && face_index < (pos+polygon_count)) {
+//			return *it;
+//		}
+//		pos += polygon_count;
+//	}
+//	return umdraw::UMMaterialPtr();
+//}
 
 /**
 * initialize
@@ -732,29 +732,29 @@ std::vector<Imath::V3f>& UMAbcMesh::normals()
 	return impl_->normals();
 }
 
-/**
-* get material list
-*/
-const umdraw::UMMaterialList& UMAbcMesh::material_list() const
-{
-	return impl_->material_list();
-}
-
-/**
-* get material list
-*/
-umdraw::UMMaterialList& UMAbcMesh::mutable_material_list()
-{
-	return impl_->mutable_material_list();
-}
-
-/**
-* get material from face index
-*/
-umdraw::UMMaterialPtr UMAbcMesh::material_from_face_index(int face_index) const
-{
-	return impl_->material_from_face_index(face_index);
-}
+///**
+//* get material list
+//*/
+//const umdraw::UMMaterialList& UMAbcMesh::material_list() const
+//{
+//	return impl_->material_list();
+//}
+//
+///**
+//* get material list
+//*/
+//umdraw::UMMaterialList& UMAbcMesh::mutable_material_list()
+//{
+//	return impl_->mutable_material_list();
+//}
+//
+///**
+//* get material from face index
+//*/
+//umdraw::UMMaterialPtr UMAbcMesh::material_from_face_index(int face_index) const
+//{
+//	return impl_->material_from_face_index(face_index);
+//}
 
 /**
 * get faceset name list

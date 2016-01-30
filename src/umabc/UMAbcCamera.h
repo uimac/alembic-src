@@ -78,10 +78,10 @@ public:
 	 */
 	virtual void update_box(bool recursive);
 
-	/**
-	 * get umcamera
-	 */
-	umdraw::UMCameraPtr umcamera() const;
+	///**
+	// * get umcamera
+	// */
+	//umdraw::UMCameraPtr umcamera() const;
 	
 protected:
 	UMAbcCamera(ICameraPtr camera);

@@ -19,7 +19,7 @@
 	#include "UMDirectX11Camera.h"
 #endif
 
-#include "UMCamera.h"
+//#include "UMCamera.h"
 
 #include <algorithm>
 #include <Alembic/Abc/All.h>
@@ -39,7 +39,7 @@ namespace umabc
 			: UMAbcObject(camera)
 			, camera_(camera)
 		{
-			umcamera_ = std::make_shared<umdraw::UMCamera>(false, 800, 600);
+			//umcamera_ = std::make_shared<umdraw::UMCamera>(false, 800, 600);
 		}
 		~Impl() {}
 
@@ -47,13 +47,13 @@ namespace umabc
 
 		void set_current_time(unsigned long time, bool recursive);
 
-		/**
-		* get umcamera
-		*/
-		umdraw::UMCameraPtr umcamera() const
-		{
-			return umcamera_;
-		}
+		///**
+		//* get umcamera
+		//*/
+		//umdraw::UMCameraPtr umcamera() const
+		//{
+		//	return umcamera_;
+		//}
 
 		virtual UMAbcObjectPtr self_reference()
 		{
@@ -66,7 +66,7 @@ namespace umabc
 		ICameraPtr camera_;
 		Alembic::AbcGeom::CameraSample sample_;
 
-		umdraw::UMCameraPtr umcamera_;
+		//umdraw::UMCameraPtr umcamera_;
 	};
 
 
@@ -98,17 +98,15 @@ void UMAbcCamera::Impl::set_current_time(unsigned long time, bool recursive)
 		return;
 	}
 
-	if (umcamera_)
-	{
-		UMAbcNodePtr p = self_reference()->parent();
-		UMMat44d mat = p->local_transform();
-		UMMat44d gmat = p->global_transform();
+	//if (umcamera_)
+	//{
+	//	UMAbcNodePtr p = self_reference()->parent();
+	//	UMMat44d mat = p->local_transform();
+	//	UMMat44d gmat = p->global_transform();
 
-		umcamera_->mutable_global_transform() = mat;
-		umcamera_->update_from_node();
-		//UMVec3d pos(mat.m[3][0], mat.m[3][1], mat.m[3][2]);
-		//printf("l %f, %f, %f\n", pos.x, pos.y, pos.z);
-	}
+	//	umcamera_->mutable_global_transform() = mat;
+	//	umcamera_->update_from_node();
+	//}
 }
 
 /**
@@ -162,13 +160,13 @@ void UMAbcCamera::update_box(bool recursive)
 {
 }
 
-/**
-* get umcamera
-*/
-umdraw::UMCameraPtr UMAbcCamera::umcamera() const
-{
-	return impl_->umcamera();
-}
+///**
+//* get umcamera
+//*/
+//umdraw::UMCameraPtr UMAbcCamera::umcamera() const
+//{
+//	return impl_->umcamera();
+//}
 
 UMAbcObjectPtr UMAbcCamera::self_reference()
 {

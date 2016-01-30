@@ -17,20 +17,20 @@
 #include "UMMacro.h"
 #include "UMAbcSetting.h"
 
-namespace umdraw
-{
-	class UMScene;
-	typedef std::shared_ptr<UMScene> UMScenePtr;
-	typedef std::weak_ptr<UMScene> UMSceneWeakPtr;
-
-	class UMMaterial;
-	typedef std::shared_ptr<UMMaterial> UMMaterialPtr;
-	typedef std::map<umstring, UMMaterialPtr> UMMaterialMap;
-
-	class UMCamera;
-	typedef std::shared_ptr<UMCamera> UMCameraPtr;
-
-} // umdraw
+//namespace umdraw
+//{
+//	class UMScene;
+//	typedef std::shared_ptr<UMScene> UMScenePtr;
+//	typedef std::weak_ptr<UMScene> UMSceneWeakPtr;
+//
+//	class UMMaterial;
+//	typedef std::shared_ptr<UMMaterial> UMMaterialPtr;
+//	typedef std::map<umstring, UMMaterialPtr> UMMaterialMap;
+//
+//	class UMCamera;
+//	typedef std::shared_ptr<UMCamera> UMCameraPtr;
+//
+//} // umdraw
 
 /// uimac alembic library
 namespace umabc
@@ -81,20 +81,20 @@ public:
 	 */
 	double max_time() const;
 	
-	/** 
-	 * get scene
-	 */
-	umdraw::UMScenePtr umdraw_scene();
+	///** 
+	// * get scene
+	// */
+	//umdraw::UMScenePtr umdraw_scene();
 
-	/**
-	 * get camera
-	 */
-	umdraw::UMCameraPtr umdraw_camera(const umstring& name);
+	///**
+	// * get camera
+	// */
+	//umdraw::UMCameraPtr umdraw_camera(const umstring& name);
 
-	/** 
-	 * set scene
-	 */
-	void set_umdraw_scene(umdraw::UMScenePtr scene);
+	///** 
+	// * set scene
+	// */
+	//void set_umdraw_scene(umdraw::UMScenePtr scene);
 	
 	/**
 	 * get name list
@@ -132,10 +132,10 @@ public:
 	 */
 	UMAbcObjectPtr find_object(const std::string& object_path);
 
-	/**
-	 * get material map
-	 */
-	umdraw::UMMaterialMap& material_map();
+	///**
+	// * get material map
+	// */
+	//umdraw::UMMaterialMap& material_map();
 
 	/**
 	 * get root object

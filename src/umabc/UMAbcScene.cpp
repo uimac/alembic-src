@@ -19,7 +19,7 @@
 #include "UMAbcObject.h"
 #include "UMStringUtil.h"
 #include "UMPath.h"
-#include "UMMaterial.h"
+//#include "UMMaterial.h"
 #include "UMAbcSoftwareIO.h"
 #include "UMAbcMesh.h"
 #include "UMAbcPoint.h"
@@ -27,8 +27,8 @@
 #include "UMAbcNurbsPatch.h"
 #include "UMAbcCamera.h"
 
-#include "UMScene.h"
-#include "UMCamera.h"
+//#include "UMScene.h"
+//#include "UMCamera.h"
 
 namespace umabc
 {
@@ -120,13 +120,13 @@ public:
 		return 0.0;
 	}
 
-	/**
-	 * set camera
-	 */
-	void set_umdraw_scene(umdraw::UMScenePtr scene)
-	{
-		scene_ = scene;
-	}
+	///**
+	// * set camera
+	// */
+	//void set_umdraw_scene(umdraw::UMScenePtr scene)
+	//{
+	//	scene_ = scene;
+	//}
 
 	/**
 	 * get name list
@@ -179,14 +179,14 @@ public:
 		return UMAbcObjectPtr();
 	}
 
-	umdraw::UMMaterialMap& material_map() { return material_map_; }
+	//umdraw::UMMaterialMap& material_map() { return material_map_; }
 	
 	umdraw::UMScenePtr umdraw_scene() { return scene_.lock(); }
 
-	umdraw::UMCameraPtr umdraw_camera(const umstring& name)
-	{
-		return find_camera_recursive(name, object_);
-	}
+	//umdraw::UMCameraPtr umdraw_camera(const umstring& name)
+	//{
+	//	return find_camera_recursive(name, object_);
+	//}
 
 	UMAbcObjectPtr root_object() const { return object_; }
 	
@@ -203,7 +203,7 @@ public:
 private:
 	UMAbcObjectPtr object_;
 	umdraw::UMSceneWeakPtr scene_;
-	umdraw::UMMaterialMap material_map_;
+	//umdraw::UMMaterialMap material_map_;
 	unsigned long pre_time_;
 
 	/**
@@ -268,25 +268,25 @@ private:
 		}
 	}
 
-	umdraw::UMCameraPtr find_camera_recursive(const umstring& name, UMAbcObjectPtr object)
+	umabc::UMAbcCameraPtr find_camera_recursive(const umstring& name, UMAbcObjectPtr object)
 	{
 		if (!object) {
-			return umdraw::UMCameraPtr();
+			return umabc::UMAbcCameraPtr();
 		}
 		if (UMAbcCameraPtr camera = std::dynamic_pointer_cast<UMAbcCamera>(object))
 		{
-			return camera->umcamera();
+			return camera;
 		}
 		for (UMAbcObjectList::const_iterator it = object->children().begin();
 			it != object->children().end();
 			++it)
 		{
-			if (umdraw::UMCameraPtr camera = find_camera_recursive(name, *it))
+			if (umabc::UMAbcCameraPtr camera = find_camera_recursive(name, *it))
 			{
 				return camera;
 			}
 		}
-		return umdraw::UMCameraPtr();
+		return umabc::UMAbcCameraPtr();
 	}
 };
 
@@ -321,13 +321,13 @@ double UMAbcScene::max_time() const
 	return impl_->max_time();
 }
 
-/** 
- * set scene
- */
-void UMAbcScene::set_umdraw_scene(umdraw::UMScenePtr scene)
-{
-	impl_->set_umdraw_scene(scene);
-}
+///** 
+// * set scene
+// */
+//void UMAbcScene::set_umdraw_scene(umdraw::UMScenePtr scene)
+//{
+//	impl_->set_umdraw_scene(scene);
+//}
 
 /**
  * initialize
@@ -422,29 +422,29 @@ std::vector<std::string> UMAbcScene::camera_path_list()
 	return name_list;
 }
 
-/** 
- * get material map
- */
-umdraw::UMMaterialMap& UMAbcScene::material_map()
-{
-	return impl_->material_map();
-}
+///** 
+// * get material map
+// */
+//umdraw::UMMaterialMap& UMAbcScene::material_map()
+//{
+//	return impl_->material_map();
+//}
 
-/** 
- * get scene
- */
-umdraw::UMScenePtr UMAbcScene::umdraw_scene()
-{
-	return impl_->umdraw_scene();
-}
+///** 
+// * get scene
+// */
+//umdraw::UMScenePtr UMAbcScene::umdraw_scene()
+//{
+//	return impl_->umdraw_scene();
+//}
 
-/**
- * get camera
- */
-umdraw::UMCameraPtr UMAbcScene::umdraw_camera(const umstring& name)
-{
-	return impl_->umdraw_camera(name);
-}
+///**
+// * get camera
+// */
+//umdraw::UMCameraPtr UMAbcScene::umdraw_camera(const umstring& name)
+//{
+//	return impl_->umdraw_camera(name);
+//}
 
 /**
  * get root object
