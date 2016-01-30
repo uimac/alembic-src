@@ -21,6 +21,8 @@
 #include <Alembic/Abc/All.h>
 #include <Alembic/AbcGeom/All.h>
 #include <Alembic/AbcCoreFactory/All.h>
+#include <Alembic/AbcCoreHDF5/All.h>
+#include <Alembic/AbcCoreOgawa/All.h>
 
 #include "UMAbcSoftwareIO.h"
 #include "UMAbcScene.h"
@@ -69,6 +71,136 @@ UMAbcScenePtr UMAbcSoftwareIO::load(umstring path, const UMAbcSetting& setting)
 	return scene;
 }
 
+static void copy_props(Alembic::Abc::ICompoundProperty & iRead, Alembic::Abc::OCompoundProperty & iWrite)
+{
+	std::size_t numChildren = iRead.getNumProperties();
+	for (std::size_t i = 0; i < numChildren; ++i)
+	{
+		Alembic::AbcCoreAbstract::PropertyHeader header =
+			iRead.getPropertyHeader(i);
+		if (header.isArray())
+		{
+			Alembic::Abc::IArrayProperty inProp(iRead, header.getName());
+			Alembic::Abc::OArrayProperty outProp(iWrite, header.getName(),
+				header.getDataType(), header.getMetaData(),
+				header.getTimeSampling());
+
+			std::size_t numSamples = inProp.getNumSamples();
+
+			for (std::size_t j = 0; j < numSamples; ++j)
+			{
+				Alembic::AbcCoreAbstract::ArraySamplePtr samp;
+				Alembic::Abc::ISampleSelector sel((Alembic::Abc::index_t) j);
+				inProp.get(samp, sel);
+				outProp.set(*samp);
+			}
+		}
+		else if (header.isScalar())
+		{
+			Alembic::Abc::IScalarProperty inProp(iRead, header.getName());
+			Alembic::Abc::OScalarProperty outProp(iWrite, header.getName(),
+				header.getDataType(), header.getMetaData(),
+				header.getTimeSampling());
+
+			std::size_t numSamples = inProp.getNumSamples();
+			std::vector<std::string> sampStrVec;
+			std::vector<std::wstring> sampWStrVec;
+			if (header.getDataType().getPod() == Alembic::AbcCoreAbstract::kStringPOD)
+			{
+				sampStrVec.resize(header.getDataType().getExtent());
+			}
+			else if (header.getDataType().getPod() == Alembic::AbcCoreAbstract::kWstringPOD)
+			{
+				sampWStrVec.resize(header.getDataType().getExtent());
+			}
+
+			char samp[4096];
+
+			for (std::size_t j = 0; j < numSamples; ++j)
+			{
+				Alembic::Abc::ISampleSelector sel(
+					(Alembic::Abc::index_t) j);
+
+				if (header.getDataType().getPod() ==
+					Alembic::AbcCoreAbstract::kStringPOD)
+				{
+					inProp.get(&sampStrVec.front(), sel);
+					outProp.set(&sampStrVec.front());
+				}
+				else if (header.getDataType().getPod() ==
+					Alembic::AbcCoreAbstract::kWstringPOD)
+				{
+					inProp.get(&sampWStrVec.front(), sel);
+					outProp.set(&sampWStrVec.front());
+				}
+				else
+				{
+					inProp.get(samp, sel);
+					outProp.set(samp);
+				}
+			}
+		}
+		else if (header.isCompound())
+		{
+			Alembic::Abc::OCompoundProperty outProp(iWrite, header.getName(), header.getMetaData());
+			Alembic::Abc::ICompoundProperty inProp(iRead, header.getName());
+			copy_props(inProp, outProp);
+		}
+	}
+}
+
+static void copy_object(Alembic::Abc::IObject & iIn, Alembic::Abc::OObject & iOut)
+{
+	std::size_t numChildren = iIn.getNumChildren();
+
+	Alembic::Abc::ICompoundProperty inProps = iIn.getProperties();
+	Alembic::Abc::OCompoundProperty outProps = iOut.getProperties();
+	copy_props(inProps, outProps);
+
+	for (std::size_t i = 0; i < numChildren; ++i)
+	{
+		Alembic::Abc::IObject childIn(iIn.getChild(i));
+		Alembic::Abc::OObject childOut(iOut, childIn.getName(), childIn.getMetaData());
+		copy_object(childIn, childOut);
+	}
+}
+
+/**
+* save 3d file
+*/
+bool UMAbcSoftwareIO::save(umstring path, UMAbcScenePtr scene, const UMAbcSetting& setting)
+{
+	Alembic::Abc::OArchive archive;
+	UMAbcObjectPtr root = scene->root_object();
+	if (!root) { return false; }
+	IObject top_object = *root->object();
+
+	std::string out_file = umbase::UMStringUtil::utf16_to_utf8(path);
+	if (setting.export_type() == "ogawa")
+	{
+		archive = Alembic::Abc::OArchive(
+			Alembic::AbcCoreHDF5::WriteArchive(),
+			out_file, top_object.getMetaData(),
+			Alembic::Abc::ErrorHandler::kQuietNoopPolicy);
+	}
+	else 
+	{
+		archive = Alembic::Abc::OArchive(
+			Alembic::AbcCoreOgawa::WriteArchive(),
+			out_file, top_object.getMetaData(),
+			Alembic::Abc::ErrorHandler::kQuietNoopPolicy);
+	}
+
+	for (Alembic::Util::uint32_t i = 1; i < archive.getNumTimeSamplings(); ++i)
+	{
+		archive.addTimeSampling(*archive.getTimeSampling(i));
+	}
+	Alembic::Abc::OObject out_top_object = archive.getTop();
+	copy_object(top_object, out_top_object);
+
+	return true;
+}
+
 //void UMAbcSoftwareIO::assign_default_material(UMAbcScenePtr scene)
 //{
 //	std::vector<std::string> name_list = scene->object_name_list();
@@ -78,15 +210,6 @@ UMAbcScenePtr UMAbcSoftwareIO::load(umstring path, const UMAbcSetting& setting)
 //		scene->material_map()[material_name] = umdraw::UMMaterial::default_material();
 //	}
 //}
-
-
-/**
- * save 3d file
- */
-bool UMAbcSoftwareIO::save(umstring path, UMAbcScenePtr scene, const UMAbcSetting& setting)
-{
-	return false;
-}
 
 /**
  * load settings

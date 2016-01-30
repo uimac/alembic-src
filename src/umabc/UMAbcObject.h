@@ -133,6 +133,11 @@ public:
 	*/
 	virtual void set_max_time(unsigned long time);
 
+	/**
+	 * get raw object
+	 */
+	IObjectPtr object();
+
 protected:
 	virtual UMAbcObjectPtr self_reference();
 

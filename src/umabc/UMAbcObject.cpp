@@ -132,6 +132,10 @@ namespace umabc
 		UMAbcObjectPtr self_reference() { return self_reference_.lock(); }
 		
 		UMAbcObjectWeakPtr self_reference_;
+		/**
+		* get raw object
+		*/
+		IObjectPtr object() { return object_;  }
 
 	protected:
 		IObjectPtr object_;
@@ -470,5 +474,14 @@ UMAbcObjectPtr UMAbcObject::self_reference()
 {
 	return impl_->self_reference();
 }
+
+/**
+* get raw object
+*/
+IObjectPtr UMAbcObject::object()
+{
+	return impl_->object();
+}
+
 
 } // umabc

@@ -42,6 +42,8 @@ public:
 	 */
 	umdraw::UMScenePtr reference_scene() const { return reference_scene_.lock(); }
 
+	std::string export_type() const { return "ogawa"; }
+
 private:
 	umdraw::UMSceneWeakPtr reference_scene_;
 };

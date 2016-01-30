@@ -82,7 +82,28 @@ public:
 	}
 
 	void save(const FunctionCallbackInfo<Value>& args) {
-		// TODO
+		Isolate* isolate = Isolate::GetCurrent();
+		HandleScope scope(isolate);
+
+		if (args.Length() < 2) {
+			isolate->ThrowException(Exception::TypeError(
+				String::NewFromUtf8(isolate, "Wrong number of arguments")));
+			return;
+		}
+		if (!args[1]->IsString()) {
+			isolate->ThrowException(Exception::TypeError(
+				String::NewFromUtf8(isolate, "Wrong arguments")));
+			return;
+		}
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
+
+		v8::String::Utf8Value utf8path(args[1]->ToString());
+		umstring path = umbase::UMStringUtil::utf8_to_utf16(*utf8path);
+
+		umabc::UMAbcSoftwareIO abcio;
+		umabc::UMAbcSetting setting;
+
+		abcio.save(path, scene, setting);
 	}
 
 	void get_total_time(const FunctionCallbackInfo<Value>& args) {
@@ -511,7 +532,7 @@ static void dispose(void*)
 void Init(Handle<Object> exports) {
 	AtExit(dispose);
 	NODE_SET_METHOD(exports, "load", load);
-	//NODE_SET_METHOD(exports, "save", save);
+	NODE_SET_METHOD(exports, "save", save);
 	NODE_SET_METHOD(exports, "get_total_time", get_total_time);
 	NODE_SET_METHOD(exports, "get_time", get_time);
 	NODE_SET_METHOD(exports, "set_time", set_time);
