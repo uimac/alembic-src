@@ -128,6 +128,11 @@ public:
 	std::vector<std::string> camera_path_list();
 
 	/**
+	* get path list
+	*/
+	std::vector<std::string> xform_path_list();
+
+	/**
 	 * find object
 	 */
 	UMAbcObjectPtr find_object(const std::string& object_path);

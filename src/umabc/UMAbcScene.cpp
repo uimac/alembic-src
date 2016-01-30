@@ -26,6 +26,7 @@
 #include "UMAbcCurve.h"
 #include "UMAbcNurbsPatch.h"
 #include "UMAbcCamera.h"
+#include "UMAbcXform.h"
 
 //#include "UMScene.h"
 //#include "UMCamera.h"
@@ -373,8 +374,8 @@ std::vector<std::string> UMAbcScene::object_name_list()
 }
 
 /**
-* get path list
-*/
+ * get path list
+ */
 std::vector<std::string> UMAbcScene::mesh_path_list()
 {
 	std::vector<std::string> name_list;
@@ -383,8 +384,8 @@ std::vector<std::string> UMAbcScene::mesh_path_list()
 }
 
 /**
-* get path list
-*/
+ * get path list
+ */
 std::vector<std::string> UMAbcScene::point_path_list()
 {
 	std::vector<std::string> name_list;
@@ -393,8 +394,8 @@ std::vector<std::string> UMAbcScene::point_path_list()
 }
 
 /**
-* get path list
-*/
+ * get path list
+ */
 std::vector<std::string> UMAbcScene::curve_path_list()
 {
 	std::vector<std::string> name_list;
@@ -403,8 +404,8 @@ std::vector<std::string> UMAbcScene::curve_path_list()
 }
 
 /**
-* get path list
-*/
+ * get path list
+ */
 std::vector<std::string> UMAbcScene::nurbs_path_list()
 {
 	std::vector<std::string> name_list;
@@ -413,12 +414,22 @@ std::vector<std::string> UMAbcScene::nurbs_path_list()
 }
 
 /**
-* get path list
-*/
+ * get path list
+ */
 std::vector<std::string> UMAbcScene::camera_path_list()
 {
 	std::vector<std::string> name_list;
 	impl_->path_list<UMAbcCamera>(name_list);
+	return name_list;
+}
+
+/**
+ * get path list
+ */
+std::vector<std::string> UMAbcScene::xform_path_list()
+{
+	std::vector<std::string> name_list;
+	impl_->path_list<UMAbcXform>(name_list);
 	return name_list;
 }
 

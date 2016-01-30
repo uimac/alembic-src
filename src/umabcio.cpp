@@ -21,6 +21,7 @@ namespace AbcA = Alembic::AbcCoreAbstract;
 #include "UMAbcCurve.h"
 #include "UMAbcNurbsPatch.h"
 #include "UMAbcCamera.h"
+#include "UMAbcXform.h"
 
 using namespace v8;
 
@@ -171,6 +172,18 @@ public:
 		args.GetReturnValue().Set(result);
 	}
 
+	void get_xform_path_list(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = Isolate::GetCurrent();
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
+		std::vector<std::string> path_list = scene->xform_path_list();
+		const int list_size = static_cast<int>(path_list.size());
+		Local<Array> result = Array::New(isolate, list_size);
+		for (int i = 0; i < list_size; ++i) {
+			result->Set(i, String::NewFromUtf8(isolate, path_list[i].c_str()));
+		}
+		args.GetReturnValue().Set(result);
+	}
+
 	void assign_transform(Local<Object>& result, umabc::UMAbcNodePtr node)
 	{
 		Isolate* isolate = Isolate::GetCurrent();
@@ -194,6 +207,22 @@ public:
 			}
 			result->Set(String::NewFromUtf8(isolate, "local_transform"), trans);
 		}
+	}
+
+	void get_xform(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = Isolate::GetCurrent();
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
+
+		v8::String::Utf8Value utf8path(args[1]->ToString());
+		std::string object_path(*utf8path);
+		Local<Object> result = Object::New(isolate);
+
+		umabc::UMAbcXformPtr xform = std::dynamic_pointer_cast<umabc::UMAbcXform>(scene->find_object(object_path));
+		if (xform) {
+			assign_transform(result, xform);
+			args.GetReturnValue().Set(result);
+		}
+		args.GetReturnValue().Set(result);
 	}
 
 	void get_mesh(const FunctionCallbackInfo<Value>& args) {
@@ -439,6 +468,11 @@ static void get_camera_path_list(const FunctionCallbackInfo<Value>& args)
 	UMAbcIO::instance().get_camera_path_list(args);
 }
 
+static void get_xform_path_list(const FunctionCallbackInfo<Value>& args)
+{
+	UMAbcIO::instance().get_xform_path_list(args);
+}
+
 static void get_mesh(const FunctionCallbackInfo<Value>& args)
 {
 	UMAbcIO::instance().get_mesh(args);
@@ -464,6 +498,11 @@ static void get_camera(const FunctionCallbackInfo<Value>& args)
 	UMAbcIO::instance().get_camera(args);
 }
 
+static void get_xform(const FunctionCallbackInfo<Value>& args)
+{
+	UMAbcIO::instance().get_xform(args);
+}
+
 static void dispose(void*)
 {
 	UMAbcIO::instance().dispose();
@@ -481,11 +520,13 @@ void Init(Handle<Object> exports) {
 	NODE_SET_METHOD(exports, "get_curve_path_list", get_curve_path_list);
 	NODE_SET_METHOD(exports, "get_nurbs_path_list", get_nurbs_path_list);
 	NODE_SET_METHOD(exports, "get_camera_path_list", get_camera_path_list);
+	NODE_SET_METHOD(exports, "get_xform_path_list", get_xform_path_list);
 	NODE_SET_METHOD(exports, "get_mesh", get_mesh);
 	NODE_SET_METHOD(exports, "get_point", get_point);
 	NODE_SET_METHOD(exports, "get_curve", get_curve);
 	NODE_SET_METHOD(exports, "get_nurbs", get_nurbs);
 	NODE_SET_METHOD(exports, "get_camera", get_camera);
+	NODE_SET_METHOD(exports, "get_xform", get_xform);
 }
 
 NODE_MODULE(umnode, Init)
