@@ -378,26 +378,31 @@ public:
 		{
 			if (nurbs->position_size() > 0)
 			{
-				Local<ArrayBuffer> positions = v8::ArrayBuffer::New(isolate, nurbs->position_size() * sizeof(Imath::V3f));
-				ArrayBuffer::Contents contents = positions->GetContents();
-				memcpy(contents.Data(), nurbs->positions(), nurbs->position_size() * sizeof(Imath::V3f));
-				result->Set(String::NewFromUtf8(isolate, "position"), Float32Array::New(positions, 0, nurbs->position_size() * 3));
+				Local<Array> positions = Array::New(isolate, nurbs->position_size() * 3);
+				for (int i = 0, size = nurbs->position_size(); i < size; ++i) {
+					positions->Set(i * 3 + 0, Number::New(isolate, nurbs->positions()[i][0]));
+					positions->Set(i * 3 + 1, Number::New(isolate, nurbs->positions()[i][1]));
+					positions->Set(i * 3 + 2, Number::New(isolate, nurbs->positions()[i][2]));
+				}
+				result->Set(String::NewFromUtf8(isolate, "position"), positions);
 			}
 
 			if (nurbs->u_knot_size() > 0)
 			{
-				Local<ArrayBuffer> u_knots = v8::ArrayBuffer::New(isolate, nurbs->u_knot_size() * sizeof(float));
-				ArrayBuffer::Contents contents = u_knots->GetContents();
-				memcpy(contents.Data(), nurbs->u_knots(), nurbs->u_knot_size() * sizeof(float));
-				result->Set(String::NewFromUtf8(isolate, "u_knot"), Float32Array::New(u_knots, 0, nurbs->u_knot_size()));
+				Local<Array> u_knots = Array::New(isolate, nurbs->u_knot_size());
+				for (int i = 0, size = nurbs->u_knot_size(); i < size; ++i) {
+					u_knots->Set(i, Number::New(isolate, nurbs->u_knots()[i]));
+				}
+				result->Set(String::NewFromUtf8(isolate, "u_knot"), u_knots);
 			}
 
 			if (nurbs->v_knot_size() > 0)
 			{
-				Local<ArrayBuffer> v_knots = v8::ArrayBuffer::New(isolate, nurbs->v_knot_size() * sizeof(float));
-				ArrayBuffer::Contents contents = v_knots->GetContents();
-				memcpy(contents.Data(), nurbs->v_knots(), nurbs->v_knot_size() * sizeof(float));
-				result->Set(String::NewFromUtf8(isolate, "v_knot"), Float32Array::New(v_knots, 0, nurbs->v_knot_size()));
+				Local<Array> v_knots = Array::New(isolate, nurbs->v_knot_size());
+				for (int i = 0, size = nurbs->v_knot_size(); i < size; ++i) {
+					v_knots->Set(i, Number::New(isolate, nurbs->v_knots()[i]));
+				}
+				result->Set(String::NewFromUtf8(isolate, "v_knot"), v_knots);
 			}
 
 			result->Set(String::NewFromUtf8(isolate, "u_size"), Uint32::New(isolate, nurbs->u_size()));
@@ -544,8 +549,8 @@ void Init(Handle<Object> exports) {
 	NODE_SET_METHOD(exports, "get_xform_path_list", get_xform_path_list);
 	NODE_SET_METHOD(exports, "get_mesh", get_mesh);
 	NODE_SET_METHOD(exports, "get_point", get_point);
-	NODE_SET_METHOD(exports, "get_curve", get_curve);
 	NODE_SET_METHOD(exports, "get_nurbs", get_nurbs);
+	NODE_SET_METHOD(exports, "get_curve", get_curve);
 	NODE_SET_METHOD(exports, "get_camera", get_camera);
 	NODE_SET_METHOD(exports, "get_xform", get_xform);
 }
