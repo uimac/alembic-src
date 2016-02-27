@@ -10,9 +10,8 @@
 #pragma once
 
 #include "UMMacro.h"
-#include "UMMathTypes.h"
-#include "UMVector.h"
-#include "UMMatrix.h"
+#include "ImathVec.h"
+#include "ImathMatrix.h"
 #include <vector>
 
 namespace umabc
@@ -33,42 +32,42 @@ namespace umabc
 		UMAbcNode() {
 			static unsigned int counter = 0;
 			id_ = ++counter;
-			node_color_ = UMVec4d(0.5, 0.5, 0.5, 1.0);
+			node_color_ = Imath::V4d(0.5, 0.5, 0.5, 1.0);
 		}
 		virtual ~UMAbcNode() {}
 
 		// getter
 		unsigned int id() const { return id_; }
-		const umstring& name() const { return name_; }
-		const UMMat44d& local_transform() const { return local_transform_; }
-		const UMMat44d& global_transform() const { return global_transform_; }
-		const UMMat44d& initial_local_transform() const { return initial_local_transform_; }
-		const UMMat44d& initial_global_transform() const { return initial_global_transform_; }
+		const std::string& name() const { return name_; }
+		const Imath::M44d& local_transform() const { return local_transform_; }
+		const Imath::M44d& global_transform() const { return global_transform_; }
+		const Imath::M44d& initial_local_transform() const { return initial_local_transform_; }
+		const Imath::M44d& initial_global_transform() const { return initial_global_transform_; }
 		const UMAbcNodeList& children() const { return children_; }
 		UMAbcNodePtr parent() { return parent_.lock(); }
-		const UMVec4d& node_color() const { return node_color_; }
+		const Imath::V4d& node_color() const { return node_color_; }
 
 		// setter
-		void set_name(const umstring& name) { name_ = name; }
-		UMMat44d& mutable_local_transform() { return local_transform_; }
-		UMMat44d& mutable_global_transform() { return global_transform_; }
-		UMMat44d& mutable_initial_local_transform() { return initial_local_transform_; }
-		UMMat44d& mutable_initial_global_transform() { return initial_global_transform_; }
+		void set_name(const std::string& name) { name_ = name; }
+		Imath::M44d& mutable_local_transform() { return local_transform_; }
+		Imath::M44d& mutable_global_transform() { return global_transform_; }
+		Imath::M44d& mutable_initial_local_transform() { return initial_local_transform_; }
+		Imath::M44d& mutable_initial_global_transform() { return initial_global_transform_; }
 		UMAbcNodeList& mutable_children() { return children_; }
 		void set_parent(UMAbcNodePtr parent) { parent_ = parent; }
-		void set_node_color(const UMVec4d& color) { node_color_ = color; }
+		void set_node_color(const Imath::V4d& color) { node_color_ = color; }
 
 	private:
 		unsigned int id_;
-		umstring name_;
+		std::string name_;
 
 		// evaluated transform
-		UMMat44d local_transform_;
-		UMMat44d global_transform_;
-		UMMat44d initial_local_transform_;
-		UMMat44d initial_global_transform_;
+		Imath::M44d local_transform_;
+		Imath::M44d global_transform_;
+		Imath::M44d initial_local_transform_;
+		Imath::M44d initial_global_transform_;
 
-		UMVec4d node_color_;
+		Imath::V4d node_color_;
 
 		UMAbcNodeWeakPtr parent_;
 		UMAbcNodeList children_;

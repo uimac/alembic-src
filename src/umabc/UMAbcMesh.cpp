@@ -15,9 +15,6 @@
 
 #include "UMMacro.h"
 #include "UMAbcMesh.h"
-#include "UMStringUtil.h"
-#include "UMAbcConvert.h"
-//#include "UMMaterial.h"
 
 namespace umabc
 {
@@ -74,25 +71,10 @@ namespace umabc
 		IndexList& triangle_index() { return triangle_index_; }
 		std::vector<Imath::V3f>& normals() { return original_normal_; }
 
-		///**
-		//* get material list
-		//*/
-		//const umdraw::UMMaterialList& material_list() const { return material_list_; }
-
-		///**
-		//* get material list
-		//*/
-		//umdraw::UMMaterialList& mutable_material_list() { return material_list_; }
-
-		///**
-		//* get material from face index
-		//*/
-		//umdraw::UMMaterialPtr material_from_face_index(int face_index) const;
-
 		/**
 		* get faceset name list
 		*/
-		const std::vector<umstring>& faceset_name_list() const { return faceset_name_list_; }
+		const std::vector<std::string>& faceset_name_list() const { return faceset_name_list_; }
 
 		/**
 		* get faceset polycount list
@@ -131,11 +113,6 @@ namespace umabc
 		*/
 		void update_vertex_index_by_faceset(Alembic::AbcGeom::IPolyMeshSchema::Sample& sample);
 
-		/**
-		* update material (face set)
-		*/
-		//void update_material();
-
 		IPolyMeshPtr poly_mesh_;
 		Alembic::AbcGeom::IPolyMeshSchema::Sample initial_sample_;
 		Alembic::AbcGeom::IBox3dProperty initial_bounds_prop_;
@@ -152,8 +129,7 @@ namespace umabc
 
 		IndexList triangle_index_;
 
-		//umdraw::UMMaterialList material_list_;
-		std::vector<umstring> faceset_name_list_;
+		std::vector<std::string> faceset_name_list_;
 		std::vector<std::string> faceset_names_;
 		std::vector<int> faceset_polycount_list_;
 		std::vector<int> faceset_original_polycount_list_;
@@ -214,7 +190,7 @@ bool UMAbcMesh::Impl::init(bool recursive)
 	for (int i = 0, size = static_cast<int>(faceset_names_.size()); i < size; ++i)
 	{
 		std::string name = faceset_names_.at(i);
-		faceset_name_list_.push_back(umbase::UMStringUtil::utf8_to_utf16(name));
+		faceset_name_list_.push_back(name);
 		
 		IFaceSet faceset = poly_mesh_->getSchema().getFaceSet(name);
 		IFaceSetSchema::Sample faceset_sample;
@@ -279,7 +255,7 @@ void UMAbcMesh::Impl::update_normal()
 		}
 		for (size_t i = 0, isize = triangle_index_.size(); i < isize; ++i)
 		{
-			const UMVec3ui& index = triangle_index_.at(i);
+			const Imath::V3i& index = triangle_index_.at(i);
 			const V3f& v0 = (*vertex_)[index[0]];
 			const V3f& v1 = (*vertex_)[index[1]];
 			const V3f& v2 = (*vertex_)[index[2]];
@@ -401,7 +377,7 @@ void UMAbcMesh::Impl::update_vertex_index_by_faceset(IPolyMeshSchema::Sample& sa
 	for (int i = 0, size = static_cast<int>(faceset_names_.size()); i < size; ++i)
 	{
 		std::string name = faceset_names_.at(i);
-		faceset_name_list_.push_back(umbase::UMStringUtil::utf8_to_utf16(name));
+		faceset_name_list_.push_back(name);
 		
 		IFaceSet faceset = poly_mesh_->getSchema().getFaceSet(name);
 		IFaceSetSchema::Sample faceset_sample;
@@ -433,7 +409,7 @@ void UMAbcMesh::Impl::update_vertex_index_by_faceset(IPolyMeshSchema::Sample& sa
 			{
 				// CW. this is alembic default.
 				triangle_index_.push_back(
-					UMVec3ui(
+					Imath::V3i(
 					(*vertex_index_)[begin_index + 0],
 					(*vertex_index_)[begin_index + 1],
 					(*vertex_index_)[begin_index + 2]));
@@ -441,7 +417,7 @@ void UMAbcMesh::Impl::update_vertex_index_by_faceset(IPolyMeshSchema::Sample& sa
 				for (size_t n = 3; n < count; ++n)
 				{
 					triangle_index_.push_back(
-						UMVec3ui(
+						Imath::V3i(
 							(*vertex_index_)[begin_index + 0],
 							(*vertex_index_)[begin_index + n-1],
 							(*vertex_index_)[begin_index + n]));
@@ -517,7 +493,7 @@ void UMAbcMesh::Impl::update_vertex_index(IPolyMeshSchema::Sample& sample)
 		{
 			// this is alembic default
 			triangle_index_.push_back(
-				UMVec3ui(
+				Imath::V3i(
 				(*vertex_index_)[face_index_begin + 0],
 				(*vertex_index_)[face_index_begin + 1],
 				(*vertex_index_)[face_index_begin + 2]));
@@ -525,7 +501,7 @@ void UMAbcMesh::Impl::update_vertex_index(IPolyMeshSchema::Sample& sample)
 			for (size_t i = 3; i < count; ++i)
 			{
 				triangle_index_.push_back(
-					UMVec3ui(
+					Imath::V3i(
 						(*vertex_index_)[face_index_begin + 0],
 						(*vertex_index_)[face_index_begin + i-1],
 						(*vertex_index_)[face_index_begin + i]));
@@ -590,60 +566,28 @@ void UMAbcMesh::Impl::update_mesh_all()
 	update_uv();
 }
 
-//void UMAbcMesh::Impl::update_material()
-//{
-//	umdraw::UMMaterialList sorted_material_list;
-//	sorted_material_list.reserve(material_list().size());
-//
-//	for (int i = 0, size = static_cast<int>(faceset_names_.size()); i < size; ++i)
-//	{
-//		umstring name = faceset_name_list_.at(i);
-//		umdraw::UMMaterialList::iterator it = mutable_material_list().begin();
-//		for (; it != mutable_material_list().end(); ++it)
-//		{
-//			umdraw::UMMaterialPtr mat = *it;
-//			if (mat->name() == name)
-//			{
-//				if (mat->polygon_count() != faceset_polycount_list().at(i))
-//				{
-//					printf("diff %s, %s, %d, %d\n", umbase::UMStringUtil::utf16_to_utf8(name).c_str(), faceset_names_.at(i).c_str(), mat->polygon_count() ,faceset_polycount_list().at(i));
-//				}
-//				mat->set_polygon_count(faceset_polycount_list().at(i));
-//				sorted_material_list.push_back(mat);
-//				break;
-//			}
-//		}
-//	}
-//	if (material_list_.size() == sorted_material_list.size())
-//	{
-//		material_list_ = sorted_material_list;
-//	}
-//}
-
 /**
  * update box
  */
 void UMAbcMesh::Impl::update_box(bool recursive)
 {
 	if (!is_valid()) return;
-	mutable_box().init();
+	mutable_box().makeEmpty();
 
 	if (initial_bounds_prop_ && initial_bounds_prop_.getNumSamples() > 0)
 	{
 		ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 
-		mutable_box() = 
-			UMAbcConvert::imath_box_to_um(
-				initial_bounds_prop_.getValue(selector));
+		mutable_box() = initial_bounds_prop_.getValue(selector);
 	}
 
-	if (mutable_box().is_empty() && vertex_)
+	if (mutable_box().isEmpty() && vertex_)
 	{
 		size_t vertex_count = vertex_->size();
 		for (size_t i = 0; i < vertex_count; ++i)
 		{
 			const Imath::V3f& p = (*vertex_)[i];
-			mutable_box().extend(UMAbcConvert::imath_vec_to_um(p));
+			mutable_box().extendBy(p);
 		}
 	}
 }
@@ -655,24 +599,6 @@ int UMAbcMesh::Impl::polygon_count() const
 {
 	return static_cast<int>(triangle_index_.size());
 }
-
-///** 
-// * get material from vertex index
-// */
-//umdraw::UMMaterialPtr UMAbcMesh::Impl::material_from_face_index(int face_index) const
-//{
-//	int pos = 0;
-//	umdraw::UMMaterialList::const_iterator it = material_list_.begin();
-//	for (; it != material_list_.end(); ++it)
-//	{
-//		const int polygon_count = (*it)->polygon_count();
-//		if (face_index >= pos && face_index < (pos+polygon_count)) {
-//			return *it;
-//		}
-//		pos += polygon_count;
-//	}
-//	return umdraw::UMMaterialPtr();
-//}
 
 /**
 * initialize
@@ -732,34 +658,10 @@ std::vector<Imath::V3f>& UMAbcMesh::normals()
 	return impl_->normals();
 }
 
-///**
-//* get material list
-//*/
-//const umdraw::UMMaterialList& UMAbcMesh::material_list() const
-//{
-//	return impl_->material_list();
-//}
-//
-///**
-//* get material list
-//*/
-//umdraw::UMMaterialList& UMAbcMesh::mutable_material_list()
-//{
-//	return impl_->mutable_material_list();
-//}
-//
-///**
-//* get material from face index
-//*/
-//umdraw::UMMaterialPtr UMAbcMesh::material_from_face_index(int face_index) const
-//{
-//	return impl_->material_from_face_index(face_index);
-//}
-
 /**
 * get faceset name list
 */
-const std::vector<umstring>& UMAbcMesh::faceset_name_list() const
+const std::vector<std::string>& UMAbcMesh::faceset_name_list() const
 {
 	return impl_->faceset_name_list();
 }

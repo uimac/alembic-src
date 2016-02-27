@@ -14,7 +14,6 @@
 #include <Alembic/AbcCoreFactory/All.h>
 
 #include "UMAbcCurve.h"
-#include "UMAbcConvert.h"
 
 namespace umabc
 {
@@ -161,20 +160,15 @@ void UMAbcCurve::Impl::update_curve_all()
 void UMAbcCurve::Impl::update_box(bool recursive)
 {
 	if (!is_valid()) return;
-	mutable_box().init();
+	mutable_box().makeEmpty();
 	
 	if (curves_->getSchema().getNumSamples() <= 0) return;
 	ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 	ICurvesSchema::Sample sample;
 	curves_->getSchema().get(sample, selector);
 
-	mutable_box().extend(UMAbcConvert::imath_box_to_um(sample.getSelfBounds()));
+	mutable_box().extendBy(sample.getSelfBounds());
 }
-
-//void UMAbcCurve::Impl::draw(bool recursive, UMAbc::DrawType type)
-//{
-//	if (!is_valid()) return;
-//}
 
 /**
 * initialize

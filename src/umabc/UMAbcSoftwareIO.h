@@ -15,13 +15,6 @@
 #include <vector>
 #include "UMMacro.h"
 #include "UMAbcSetting.h"
-//#include "UMMaterial.h"
-
-//namespace umdraw
-//{
-//	class UMMesh;
-//	typedef std::shared_ptr<UMMesh> UMMeshPtr;
-//}
 
 /// uimac alembic library
 namespace umabc
@@ -39,8 +32,6 @@ typedef std::shared_ptr<UMAbcMesh> UMAbcMeshPtr;
 class UMAbcSoftwareIO;
 typedef std::shared_ptr<UMAbcSoftwareIO> UMAbcSoftwareIOPtr;
 
-//typedef std::vector<umdraw::UMMaterialMap> UMAbcSceneMaterialList;
-
 class UMAbcSoftwareIO
 {
 	DISALLOW_COPY_AND_ASSIGN(UMAbcSoftwareIO);
@@ -57,12 +48,12 @@ public:
 	/**
 	 * load 3d file to UMAbcScene
 	 */
-	UMAbcScenePtr load(umstring path, const UMAbcSetting& setting);
+	UMAbcScenePtr load(std::string path, const UMAbcSetting& setting);
 	
 	/**
 	 * save 3d file
 	 */
-	bool save(umstring path, UMAbcScenePtr scene, const UMAbcSetting& setting);
+	bool save(std::string path, UMAbcScenePtr scene, const UMAbcSetting& setting);
 
 	/**
 	 * load settings
@@ -73,33 +64,6 @@ public:
 	 * save settings
 	 */
 	bool save_setting(std::string path, const UMAbcSetting& setting);
-
-	///** 
-	// * import umabc materials
-	// * @param [out] dst destination material list
-	// * @param [in] abc_mtl_filepath material file path
-	// */
-	//static bool import_material_map(
-	//	umdraw::UMMaterialMap& dst, 
-	//	const umstring& abc_mtl_filepath);
-	//
-	///**
-	// * convert abc mesh to mesh
-	// * @param [in] src source abc mesh
-	// * @retval UMMeshPtr converted mesh or none
-	// */
-	//static umdraw::UMMeshPtr convert_abc_mesh_to_mesh(
-	//	umabc::UMAbcMeshPtr src);
-
-	/**
-	 * convert ccw(wrong) mesh to cw mesh
-	 */
-	//static void convert_abc_mesh_ccw_to_cw(umabc::UMAbcObjectPtr src);
-
-	/**
-	 * assign default material to scene
-	 */
-	//static void assign_default_material(UMAbcScenePtr scene);
 
 private:
 };

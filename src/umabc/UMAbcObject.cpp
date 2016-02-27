@@ -87,12 +87,12 @@ namespace umabc
 		/**
 		* get bounding box
 		*/
-		const UMBox& box() const { return box_; }
+		const Imath::Box3d& box() const { return box_; }
 
 		/**
 		* get no inherit bounding box
 		*/
-		const UMBox& no_inherit_box() const { return no_inherit_box_; }
+		const Imath::Box3d& no_inherit_box() const { return no_inherit_box_; }
 
 		/**
 		* update box
@@ -122,12 +122,12 @@ namespace umabc
 		/**
 		* get bounding box
 		*/
-		UMBox& mutable_box() { return box_; }
+		Imath::Box3d& mutable_box() { return box_; }
 
 		/**
 		* get no inherit bounding box
 		*/
-		UMBox& mutable_no_inherit_box() { return no_inherit_box_; }
+		Imath::Box3d& mutable_no_inherit_box() { return no_inherit_box_; }
 
 		UMAbcObjectPtr self_reference() { return self_reference_.lock(); }
 		
@@ -146,8 +146,8 @@ namespace umabc
 		unsigned long max_time_;
 		unsigned long current_time_;
 
-		UMBox box_;
-		UMBox no_inherit_box_;
+		Imath::Box3d box_;
+		Imath::Box3d no_inherit_box_;
 		UMAbcObjectList children_;
 		UMAbcObjectWeakPtr parent_object_;
 	};
@@ -273,7 +273,7 @@ void UMAbcObject::Impl::set_current_time(unsigned long time, bool recursive)
  */
 void UMAbcObject::Impl::update_box(bool recursive)
 {
-	box_.init();
+	box_.makeEmpty();
 	UMAbcObjectList::iterator it = children_.begin();
 	for (; it != children_.end(); ++it)
 	{
@@ -282,7 +282,7 @@ void UMAbcObject::Impl::update_box(bool recursive)
 		{
 			child->update_box(recursive);
 		}
-		box_.extend(child->box());
+		box_.extendBy(child->box());
 	}
 }
 
@@ -392,7 +392,7 @@ bool UMAbcObject::is_visible() const
 /**
 * get bounding box
 */
-const UMBox& UMAbcObject::box() const
+const Imath::Box3d& UMAbcObject::box() const
 {
 	return impl_->box();
 }
@@ -400,7 +400,7 @@ const UMBox& UMAbcObject::box() const
 /**
 * get no inherit bounding box
 */
-const UMBox& UMAbcObject::no_inherit_box() const
+const Imath::Box3d& UMAbcObject::no_inherit_box() const
 {
 	return impl_->no_inherit_box();
 }
@@ -457,7 +457,7 @@ void UMAbcObject::set_max_time(unsigned long time)
 /**
 * get bounding box
 */
-UMBox& UMAbcObject::mutable_box()
+Imath::Box3d& UMAbcObject::mutable_box()
 {
 	return impl_->mutable_box();
 }
@@ -465,7 +465,7 @@ UMBox& UMAbcObject::mutable_box()
 /**
 * get no inherit bounding box
 */
-UMBox& UMAbcObject::mutable_no_inherit_box()
+Imath::Box3d& UMAbcObject::mutable_no_inherit_box()
 {
 	return impl_->mutable_no_inherit_box();
 }

@@ -13,7 +13,6 @@
 namespace AbcA = Alembic::AbcCoreAbstract;
 
 #include "UMAbcSoftwareIO.h"
-#include "UMStringUtil.h"
 #include "UMAbcScene.h"
 #include "UMAbcObject.h"
 #include "UMAbcMesh.h"
@@ -27,7 +26,7 @@ using namespace v8;
 
 class UMAbcIO {
 public:
-	typedef std::map<umstring, umabc::UMAbcScenePtr> SceneMap;
+	typedef std::map<std::string, umabc::UMAbcScenePtr> SceneMap;
 
 	static UMAbcIO& instance() {
 		static UMAbcIO abcio;
@@ -47,7 +46,7 @@ public:
 		}
 
 		v8::String::Utf8Value utf8path(args[0]->ToString());
-		umstring path = umbase::UMStringUtil::utf8_to_utf16(*utf8path);
+		const std::string path = *utf8path;
 		return scene_map_[path];
 	}
 
@@ -67,7 +66,7 @@ public:
 		}
 
 		v8::String::Utf8Value utf8path(args[0]->ToString());
-		umstring path = umbase::UMStringUtil::utf8_to_utf16(*utf8path);
+		const std::string path = *utf8path;
 		if (scene_map_.find(path) != scene_map_.end()) {
 			isolate->ThrowException(Exception::TypeError(
 				String::NewFromUtf8(isolate, "Already Loaded")));
@@ -98,7 +97,7 @@ public:
 		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
 
 		v8::String::Utf8Value utf8path(args[1]->ToString());
-		umstring path = umbase::UMStringUtil::utf8_to_utf16(*utf8path);
+		const std::string path = *utf8path;
 
 		umabc::UMAbcSoftwareIO abcio;
 		umabc::UMAbcSetting setting;
@@ -209,7 +208,7 @@ public:
 	{
 		Isolate* isolate = Isolate::GetCurrent();
 		{
-			const UMMat44d& global_transform = node->global_transform();
+			const Imath::M44d& global_transform = node->global_transform();
 			Local<Array> trans = Array::New(isolate, 16);
 			for (int i = 0; i < 4; ++i) {
 				for (int k = 0; k < 4; ++k) {
@@ -219,7 +218,7 @@ public:
 			result->Set(String::NewFromUtf8(isolate, "global_transform"), trans);
 		}
 		{
-			const UMMat44d& local_transform = node->local_transform();
+			const Imath::M44d& local_transform = node->local_transform();
 			Local<Array> trans = Array::New(isolate, 16);
 			for (int i = 0; i < 4; ++i) {
 				for (int k = 0; k < 4; ++k) {
@@ -274,9 +273,9 @@ public:
 
 			if (mesh->triangle_index().size() > 0)
 			{
-				Local<ArrayBuffer> indices = v8::ArrayBuffer::New(isolate, mesh->triangle_index().size() * sizeof(umbase::UMVec3i));
+				Local<ArrayBuffer> indices = v8::ArrayBuffer::New(isolate, mesh->triangle_index().size() * sizeof(Imath::V3i));
 				ArrayBuffer::Contents contents = indices->GetContents();
-				memcpy(contents.Data(), &mesh->triangle_index()[0], mesh->triangle_index().size() * sizeof(umbase::UMVec3i));
+				memcpy(contents.Data(), &mesh->triangle_index()[0], mesh->triangle_index().size() * sizeof(Imath::V3i));
 				result->Set(String::NewFromUtf8(isolate, "index"), Int32Array::New(indices, 0, mesh->triangle_index().size() * 3));
 			}
 

@@ -27,13 +27,6 @@
 #include "UMAbcSoftwareIO.h"
 #include "UMAbcScene.h"
 #include "UMAbcMesh.h"
-//#include "UMMaterial.h"
-
-#include "UMStringUtil.h"
-#include "UMPath.h"
-//#include "UMImage.h"
-//#include "UMScene.h"
-//#include "UMMesh.h"
 
 namespace umabc
 {
@@ -43,10 +36,10 @@ namespace umabc
 /**
  * load 3d file to UMAbcScene
  */
-UMAbcScenePtr UMAbcSoftwareIO::load(umstring path, const UMAbcSetting& setting)
+UMAbcScenePtr UMAbcSoftwareIO::load(std::string path, const UMAbcSetting& setting)
 {
 	Alembic::AbcCoreFactory::IFactory factory;
-	IArchive archive = factory.getArchive(umbase::UMStringUtil::utf16_to_utf8(path));
+	IArchive archive = factory.getArchive(path);
 
 	if (!archive.valid()) { return UMAbcScenePtr(); }
 
@@ -59,15 +52,7 @@ UMAbcScenePtr UMAbcSoftwareIO::load(umstring path, const UMAbcSetting& setting)
 
 	UMAbcScenePtr scene = std::make_shared<UMAbcScene>(object);
 	scene->init();
-	//if (!umabc::UMAbcSoftwareIO::import_material_map(scene->material_map(), path))
-	//{
-	//	assign_default_material(scene);
-	//}
 
-	//if (umdraw::UMScenePtr reference_scene = setting.reference_scene())
-	//{
-	//	scene->set_umdraw_scene(reference_scene);
-	//}
 	return scene;
 }
 
@@ -168,14 +153,14 @@ static void copy_object(Alembic::Abc::IObject & iIn, Alembic::Abc::OObject & iOu
 /**
 * save 3d file
 */
-bool UMAbcSoftwareIO::save(umstring path, UMAbcScenePtr scene, const UMAbcSetting& setting)
+bool UMAbcSoftwareIO::save(std::string path, UMAbcScenePtr scene, const UMAbcSetting& setting)
 {
 	Alembic::Abc::OArchive archive;
 	UMAbcObjectPtr root = scene->root_object();
 	if (!root) { return false; }
 	IObject top_object = *root->object();
 
-	std::string out_file = umbase::UMStringUtil::utf16_to_utf8(path);
+	const std::string& out_file = path;
 	if (setting.export_type() == "ogawa")
 	{
 		archive = Alembic::Abc::OArchive(
@@ -201,16 +186,6 @@ bool UMAbcSoftwareIO::save(umstring path, UMAbcScenePtr scene, const UMAbcSettin
 	return true;
 }
 
-//void UMAbcSoftwareIO::assign_default_material(UMAbcScenePtr scene)
-//{
-//	std::vector<std::string> name_list = scene->object_name_list();
-//	for (int i = 0, size = static_cast<int>(name_list.size()); i < size; ++i)
-//	{
-//		umstring material_name = umbase::UMStringUtil::utf8_to_utf16(name_list.at(i));
-//		scene->material_map()[material_name] = umdraw::UMMaterial::default_material();
-//	}
-//}
-
 /**
  * load settings
  */
@@ -233,9 +208,9 @@ bool UMAbcSoftwareIO::save_setting(std::string path, const UMAbcSetting& setting
 // */
 //bool UMAbcSoftwareIO::import_material_map(
 //	umdraw::UMMaterialMap& dst, 
-//	const umstring& abc_mtl_filepath)
+//	const std::string& abc_mtl_filepath)
 //{
-//	umstring mtl_path = abc_mtl_filepath;
+//	std::string mtl_path = abc_mtl_filepath;
 //	mtl_path.replace(abc_mtl_filepath.size() - 3, 3, 
 //		umbase::UMStringUtil::utf8_to_utf16("mtl"));
 //
@@ -276,7 +251,7 @@ bool UMAbcSoftwareIO::save_setting(std::string path, const UMAbcSetting& setting
 //					+ "_material_"
 //					+ material_index;
 //
-//				umstring material_name = umbase::UMStringUtil::utf8_to_utf16(name);
+//				std::string material_name = umbase::UMStringUtil::utf8_to_utf16(name);
 //				current_mat->set_name(material_name);
 //				dst[material_name] = current_mat;
 //			}
@@ -289,7 +264,7 @@ bool UMAbcSoftwareIO::save_setting(std::string path, const UMAbcSetting& setting
 //				&& (iss >> g) 
 //				&& (iss >> b))
 //			{
-//				current_mat->set_ambient(UMVec4d(r, g, b, 1.0));
+//				current_mat->set_ambient(Imath::V4d(r, g, b, 1.0));
 //			}
 //		}
 //		else if (id == "Kd")
@@ -300,7 +275,7 @@ bool UMAbcSoftwareIO::save_setting(std::string path, const UMAbcSetting& setting
 //				&& (iss >> g) 
 //				&& (iss >> b))
 //			{
-//				current_mat->set_diffuse(UMVec4d(r, g, b, 1.0));
+//				current_mat->set_diffuse(Imath::V4d(r, g, b, 1.0));
 //			}
 //		}
 //		else if (id == "Ks")
@@ -311,7 +286,7 @@ bool UMAbcSoftwareIO::save_setting(std::string path, const UMAbcSetting& setting
 //				&& (iss >> g) 
 //				&& (iss >> b))
 //			{
-//				current_mat->set_specular(UMVec4d(r, g, b, 1.0));
+//				current_mat->set_specular(Imath::V4d(r, g, b, 1.0));
 //			}
 //		}
 //		else if (id == "Ns")
@@ -320,7 +295,7 @@ bool UMAbcSoftwareIO::save_setting(std::string path, const UMAbcSetting& setting
 //			if (current_mat 
 //				&& (iss >> power))
 //			{
-//				UMVec4d specular = current_mat->specular();
+//				Imath::V4d specular = current_mat->specular();
 //				specular.w = power;
 //				current_mat->set_specular(specular);
 //			}
@@ -334,8 +309,8 @@ bool UMAbcSoftwareIO::save_setting(std::string path, const UMAbcSetting& setting
 //			if (current_mat 
 //				&& (iss >> texture_name))
 //			{
-//                umstring tex = umbase::UMStringUtil::utf8_to_utf16(texture_name);
-//				umstring path = 
+//                std::string tex = umbase::UMStringUtil::utf8_to_utf16(texture_name);
+//				std::string path = 
 //					umbase::UMPath::get_absolute_path(
 //					abc_mtl_filepath,
 //					tex);
@@ -395,7 +370,7 @@ bool UMAbcSoftwareIO::save_setting(std::string path, const UMAbcSetting& setting
 //	//		umdraw::UMMaterial::TexturePathList::const_iterator pt = mat->texture_path_list().begin();
 //	//		for (; pt != mat->texture_path_list().end(); ++pt)
 //	//		{
-//	//			const umstring& path = *pt;
+//	//			const std::string& path = *pt;
 //	//			//if (UMImagePtr image = UMImage::load(path))
 //	//			//{
 //	//			//	mat->mutable_texture_list().push_back(image);

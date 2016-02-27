@@ -31,13 +31,6 @@ namespace Alembic
 	}
 }
 
-//namespace umdraw
-//{
-//	class UMMaterial;
-//	typedef std::shared_ptr<UMMaterial> UMMaterialPtr;
-//	typedef std::vector<UMMaterialPtr> UMMaterialList;
-//}
-
 namespace umabc
 {
 typedef std::shared_ptr<Alembic::AbcGeom::v7::IPolyMesh> IPolyMeshPtr;
@@ -50,7 +43,7 @@ class UMAbcMesh : public UMAbcObject
 {
 	DISALLOW_COPY_AND_ASSIGN(UMAbcMesh);
 public:
-	typedef std::vector<UMVec3ui > IndexList;
+	typedef std::vector<Imath::V3i > IndexList;
 
 	/**
 	 * crate instance
@@ -100,25 +93,10 @@ public:
 	 */
 	void update_mesh_all();
 
-	///**
-	// * get material list
-	// */
-	//const umdraw::UMMaterialList& material_list() const;
-	//
-	///**
-	// * get material list
-	// */
-	//umdraw::UMMaterialList& mutable_material_list();
-
-	///**
-	// * get material from face index
-	// */
-	//umdraw::UMMaterialPtr material_from_face_index(int face_index) const;
-
 	/**
 	 * get faceset name list
 	 */
-	const std::vector<umstring>& faceset_name_list() const;
+	const std::vector<std::string>& faceset_name_list() const;
 
 	/**
 	 * get faceset polycount list

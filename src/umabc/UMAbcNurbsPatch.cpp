@@ -15,8 +15,6 @@
 
 #include "UMAbcNurbsPatch.h"
 
-#include "UMAbcConvert.h"
-
 namespace umabc
 {
 	using namespace Alembic::Abc;
@@ -122,12 +120,6 @@ bool UMAbcNurbsPatch::Impl::init(bool recursive)
 {
 	if (!is_valid()) return false;
 	
-	// // create our nurb renderer.
-	// nurb = gluNewNurbsRenderer();
-
-	// gluNurbsProperty(nurb, GLU_SAMPLING_TOLERANCE, 25.0);
-	// gluNurbsProperty(nurb, GLU_DISPLAY_MODE, GLU_FILL);
-
 	size_t num_samples = patch_->getSchema().getNumSamples();
 	if (num_samples > 0)
 	{
@@ -181,14 +173,14 @@ void UMAbcNurbsPatch::Impl::update_box(bool recursive)
 {
 	if (!is_valid()) return;
 
-	mutable_box().init();
+	mutable_box().makeEmpty();
 	if (positions_)
 	{
 		size_t position_count = positions_->size();
 		for (size_t i = 0; i < position_count; ++i)
 		{
 			const Imath::V3f& p = (*positions_)[i];
-			mutable_box().extend(UMAbcConvert::imath_vec_to_um(p));
+			mutable_box().extendBy(p);
 		}
 	}
 }

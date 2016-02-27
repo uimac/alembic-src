@@ -14,7 +14,6 @@
 #include <Alembic/AbcCoreFactory/All.h>
 
 #include "UMAbcPoint.h"
-#include "UMAbcConvert.h"
 
 namespace umabc
 {
@@ -168,24 +167,22 @@ void UMAbcPoint::Impl::set_current_time(unsigned long time, bool recursive)
  */
 void UMAbcPoint::Impl::update_box(bool recursive)
 {
-	mutable_box().init();
+	mutable_box().makeEmpty();
 
 	if (initial_bounds_prop_ && initial_bounds_prop_.getNumSamples() > 0)
 	{
 		ISampleSelector selector(self_reference()->current_time(), ISampleSelector::kNearIndex);
 
-		mutable_box() = 
-			UMAbcConvert::imath_box_to_um(
-				initial_bounds_prop_.getValue(selector));
+		mutable_box() = initial_bounds_prop_.getValue(selector);
 	}
 
-	if (mutable_box().is_empty() && positions_)
+	if (mutable_box().isEmpty() && positions_)
 	{
 		size_t point_count = positions_->size();
 		for (size_t i = 0; i < point_count; ++i)
 		{
 			const Imath::V3f& p = (*positions_)[i];
-			mutable_box().extend(UMAbcConvert::imath_vec_to_um(p));
+			mutable_box().extendBy(p);
 		}
 	}
 }

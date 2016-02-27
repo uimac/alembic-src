@@ -30,14 +30,6 @@ namespace Alembic {
 	}
 }
 
-namespace umdraw
-{
-
-class UMCamera;
-typedef std::shared_ptr<UMCamera> UMCameraPtr;
-
-} // umdraw
-
 namespace umabc
 {
 typedef std::shared_ptr<Alembic::AbcGeom::v7::ICamera> ICameraPtr;
@@ -77,11 +69,6 @@ public:
 	 * @param [in] recursive do children recursively
 	 */
 	virtual void update_box(bool recursive);
-
-	///**
-	// * get umcamera
-	// */
-	//umdraw::UMCameraPtr umcamera() const;
 	
 protected:
 	UMAbcCamera(ICameraPtr camera);

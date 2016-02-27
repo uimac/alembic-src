@@ -8,12 +8,12 @@
  * Licensed  under the MIT license. 
  *
  */
-#include "UMAbcXform.h"
 #include <algorithm>
 #include <Alembic/Abc/All.h>
 #include <Alembic/AbcGeom/All.h>
 #include <Alembic/AbcCoreFactory/All.h>
-#include "UMAbcConvert.h"
+
+#include "UMAbcXform.h"
 
 namespace umabc
 {
@@ -62,7 +62,7 @@ namespace umabc
 	private:
 		IXformPtr xform_;
 
-		UMMat44d static_matrix_;
+		Imath::M44d static_matrix_;
 		bool is_inherit_;
 	};
 
@@ -91,14 +91,12 @@ bool UMAbcXform::Impl::init_(bool recursive)
 {
  	if (!is_valid() || xform_->getSchema().isConstantIdentity()) return false;
 	
-	self_reference()->mutable_local_transform().identity();
-	static_matrix_.identity();
+	self_reference()->mutable_local_transform().makeIdentity();
+	static_matrix_.makeIdentity();
 
 	if (xform_->getSchema().isConstant())
 	{
-		static_matrix_ =
-			UMAbcConvert::imath_mat_to_um(
-			xform_->getSchema().getValue().getMatrix());
+		static_matrix_ =xform_->getSchema().getValue().getMatrix();
 	}
 	else
 	{
@@ -121,7 +119,7 @@ bool UMAbcXform::Impl::init_(bool recursive)
 void UMAbcXform::Impl::set_current_time(unsigned long time, bool recursive)
 {
 	if (!is_valid()) {
-		self_reference()->mutable_local_transform().identity();
+		self_reference()->mutable_local_transform().makeIdentity();
 		return;
 	}
 	
@@ -137,8 +135,7 @@ void UMAbcXform::Impl::set_current_time(unsigned long time, bool recursive)
 		else
 		{
 			self_reference()->mutable_local_transform() =
-				UMAbcConvert::imath_mat_to_um(
-					xform_->getSchema().getValue(selector).getMatrix());
+					xform_->getSchema().getValue(selector).getMatrix();
 		}
 	}
 }
@@ -150,34 +147,33 @@ void UMAbcXform::Impl::update_box(bool recursive)
 {
 	UMAbcObject::update_box(recursive);
 
-	mutable_box().init();
-	mutable_no_inherit_box().init();
+	mutable_box().makeEmpty();
+	mutable_no_inherit_box().makeEmpty();
 
 	UMAbcObjectList::iterator it = mutable_children().begin();
 	for (; it != mutable_children().end(); ++it)
 	{
 		UMAbcObjectPtr child = *it;
-		if (!child->box().is_empty())
+		if (!child->box().isEmpty())
 		{
-			const UMBox& child_box = child->box();
-			child_box.transformed(self_reference()->local_transform());
+			const Imath::Box3d& child_box = child->box();
 
-			if (!child_box.is_empty())
+			if (!child_box.isEmpty())
 			{
 				if (is_inherit_)
 				{
-					mutable_box().extend(child_box);
+					mutable_box().extendBy(child_box);
 				}
 				else
 				{
-					mutable_no_inherit_box().extend(child_box);
+					mutable_no_inherit_box().extendBy(child_box);
 				}
 			}
 
-			const UMBox& child_no_inherit_box = child->no_inherit_box();
-			if (!child_no_inherit_box.is_empty())
+			const Imath::Box3d& child_no_inherit_box = child->no_inherit_box();
+			if (!child_no_inherit_box.isEmpty())
 			{
-				mutable_no_inherit_box().extend(child_no_inherit_box);
+				mutable_no_inherit_box().extendBy(child_no_inherit_box);
 			}
 		}
 	}

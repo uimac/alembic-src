@@ -13,13 +13,6 @@
 #include <memory>
 #include "UMMacro.h"
 
-namespace umdraw
-{
-	class UMScene;
-	typedef std::shared_ptr<UMScene> UMScenePtr;
-	typedef std::weak_ptr<UMScene> UMSceneWeakPtr;
-} // umdraw
-
 /// uimac alembic library
 namespace umabc
 {
@@ -32,20 +25,9 @@ public:
 	UMAbcSetting() {}
 	~UMAbcSetting() {}
 
-	/**
-	 * set reference scene
-	 */
-	void set_reference_scene(umdraw::UMScenePtr scene) { reference_scene_ = scene; }
-
-	/**
-	 * get refrerence scene
-	 */
-	umdraw::UMScenePtr reference_scene() const { return reference_scene_.lock(); }
-
 	std::string export_type() const { return "ogawa"; }
 
 private:
-	umdraw::UMSceneWeakPtr reference_scene_;
 };
 
 } // umabc

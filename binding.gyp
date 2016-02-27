@@ -105,19 +105,7 @@
 		"src/umabc/UMAbcSoftwareIO.h",
 		"src/umabc/UMAbcXform.cpp",
 		"src/umabc/UMAbcXform.h",
-		"src/umbase/UMAny.h",
-		"src/umbase/UMBox.cpp",
-		"src/umbase/UMBox.h",
-		"src/umbase/UMMacro.h",
-		"src/umbase/UMMath.h",
-		"src/umbase/UMMathTypes.h",
-		"src/umbase/UMMatrix.h",
-		"src/umbase/UMPath.cpp",
-		"src/umbase/UMPath.h",
-		"src/umbase/UMStringUtil.h",
-		"src/umbase/UMTime.cpp",
-		"src/umbase/UMTime.h",
-		"src/umbase/UMVector.h",
+		"src/umabc/UMMacro.h",
 		"src/umabcio.cpp"
 		],
 		"include_dirs": [
@@ -132,9 +120,7 @@
 		"<(module_root_dir)/lib/ilmbase2/include/config.windows",
 		"<(module_root_dir)/lib/alembic/include",
 		"<(module_root_dir)/src/",
-		"<(module_root_dir)/src/umbase",
-		"<(module_root_dir)/src/umabc",
-		"<(module_root_dir)/src/umdraw"
+		"<(module_root_dir)/src/umabc"
 		]
 	}]
 }

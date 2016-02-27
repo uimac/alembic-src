@@ -5,16 +5,16 @@
 		abcio = require('alembic');
 
 	function loadtest() {
-		var file = "alembic_octopus.abc",
+		var file = "nurbs1.abc",
 			path_list,
 			i;
 		console.log("hogehoge");
 		console.log(abcio);
 		abcio.load(file);
-		path_list = abcio.get_mesh_path_list(file);
+		path_list = abcio.get_nurbs_path_list(file);
 		console.log(path_list);
 		console.log(abcio.get_total_time(file));
-		abcio.set_time(file, 3000);
+		abcio.set_time(file, 1);
 		/*
 		for (i = 0; i < path_list.length; i = i + 1) {
 			console.log(abcio.get_mesh(file, path_list[i]));

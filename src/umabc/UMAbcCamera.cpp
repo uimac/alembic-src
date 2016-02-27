@@ -8,15 +8,12 @@
  * Licensed  under the MIT license. 
  *
  */
-
-#include "UMAbcCamera.h"
-
-//#include "UMCamera.h"
-
 #include <algorithm>
 #include <Alembic/Abc/All.h>
 #include <Alembic/AbcGeom/All.h>
 #include <Alembic/AbcCoreFactory/All.h>
+
+#include "UMAbcCamera.h"
 
 namespace umabc
 {
@@ -31,21 +28,12 @@ namespace umabc
 			: UMAbcObject(camera)
 			, camera_(camera)
 		{
-			//umcamera_ = std::make_shared<umdraw::UMCamera>(false, 800, 600);
 		}
 		~Impl() {}
 
 		bool init(bool recursive);
 
 		void set_current_time(unsigned long time, bool recursive);
-
-		///**
-		//* get umcamera
-		//*/
-		//umdraw::UMCameraPtr umcamera() const
-		//{
-		//	return umcamera_;
-		//}
 
 		virtual UMAbcObjectPtr self_reference()
 		{
@@ -57,8 +45,6 @@ namespace umabc
 	private:
 		ICameraPtr camera_;
 		Alembic::AbcGeom::CameraSample sample_;
-
-		//umdraw::UMCameraPtr umcamera_;
 	};
 
 
@@ -86,19 +72,9 @@ bool UMAbcCamera::Impl::init(bool recursive)
 void UMAbcCamera::Impl::set_current_time(unsigned long time, bool recursive)
 {
 	if (!is_valid()) {
-		mutable_local_transform().identity();
+		mutable_local_transform().makeIdentity();
 		return;
 	}
-
-	//if (umcamera_)
-	//{
-	//	UMAbcNodePtr p = self_reference()->parent();
-	//	UMMat44d mat = p->local_transform();
-	//	UMMat44d gmat = p->global_transform();
-
-	//	umcamera_->mutable_global_transform() = mat;
-	//	umcamera_->update_from_node();
-	//}
 }
 
 /**
@@ -151,14 +127,6 @@ void UMAbcCamera::set_current_time(unsigned long time, bool recursive)
 void UMAbcCamera::update_box(bool recursive)
 {
 }
-
-///**
-//* get umcamera
-//*/
-//umdraw::UMCameraPtr UMAbcCamera::umcamera() const
-//{
-//	return impl_->umcamera();
-//}
 
 UMAbcObjectPtr UMAbcCamera::self_reference()
 {

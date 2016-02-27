@@ -12,10 +12,9 @@
 
 #include <memory>
 #include <string>
+#include "ImathBox.h"
 
 #include "UMMacro.h"
-#include "UMBox.h"
-#include "UMMathTypes.h"
 #include "UMAbcNode.h"
 
 namespace Alembic {
@@ -89,12 +88,12 @@ public:
 	/**
 	 * get bounding box
 	 */
-	virtual const UMBox& box() const;
+	virtual const Imath::Box3d& box() const;
 
 	/**
 	 * get no inherit bounding box
 	 */
-	virtual const UMBox& no_inherit_box() const;
+	virtual const Imath::Box3d& no_inherit_box() const;
 
 	/**
 	 * update box
@@ -146,12 +145,12 @@ protected:
 	/**
 	* get bounding box
 	*/
-	virtual UMBox& mutable_box();
+	virtual Imath::Box3d& mutable_box();
 
 	/**
 	* get no inherit bounding box
 	*/
-	virtual UMBox& mutable_no_inherit_box();
+	virtual Imath::Box3d& mutable_no_inherit_box();
 
 private:
 	class Impl;
