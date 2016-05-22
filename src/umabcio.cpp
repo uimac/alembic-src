@@ -283,7 +283,12 @@ public:
 			{
 				Local<ArrayBuffer> uvs = v8::ArrayBuffer::New(isolate, mesh->uv_size() * sizeof(Imath::V2f));
 				ArrayBuffer::Contents contents = uvs->GetContents();
-				memcpy(contents.Data(), mesh->uv(), mesh->uv_size() * sizeof(Imath::V2f));
+				Imath::V2f* data = reinterpret_cast<Imath::V2f*>(contents.Data());
+				for (int i = 0, size = mesh->uv_size(); i < size; ++i) {
+					const Imath::V2f* uv = &mesh->uv()[i];
+					Imath::V2f flip(uv->x, 1.0 - uv->y);
+					memcpy(&data[i], &flip, sizeof(Imath::V2f));
+				}
 				result->Set(String::NewFromUtf8(isolate, "uv"), Float32Array::New(uvs, 0, mesh->uv_size() * 2));
 			}
 			assign_transform(result, mesh);
