@@ -272,16 +272,60 @@ void UMAbcMesh::Impl::update_normal()
 	}
 	else
 	{
-		const V3f *normals =  normal_.getVals()->get();
+		const V3f *normals = normal_.getVals()->get();
 		size_t normal_size = normal_.getVals()->size();
 		size_t vertex_size = vertex_ ? vertex_->size() : 0;
 		is_vertex_varying = normal_size == vertex_size;
 
-		original_normal_.resize(normal_size);
-		for (size_t i = 0; i < normal_size; ++i)
+		if (is_face_varying)
 		{
-			original_normal_[i] = normals[i];
-			original_normal_[i].normalize();
+			original_normal_.resize(vertex_size);
+			const size_t vertex_index_size_ = vertex_index_->size();
+			for (size_t i = 0; i < normal_size; ++i)
+			{
+				const int index = (*vertex_index_)[i];
+				original_normal_[index] += normals[i];
+			}
+			// normalize
+			for (size_t i = 0; i < vertex_size; ++i)
+			{
+				original_normal_[i].normalize();
+			}
+		}
+		else if (is_vertex_varying)
+		{
+			original_normal_.resize(normal_size);
+			for (size_t i = 0; i < normal_size; ++i)
+			{
+				original_normal_[i] = normals[i];
+				original_normal_[i].normalize();
+			}
+		}
+		else
+		{
+			// make vertex varying normals
+			is_vertex_varying = true;
+			original_normal_.resize(vertex_->size());
+			for (size_t i = 0, isize = original_normal_.size(); i < isize; ++i)
+			{
+				original_normal_[i] = Imath::V3f(0);
+			}
+			for (size_t i = 0, isize = triangle_index_.size(); i < isize; ++i)
+			{
+				const Imath::V3i& index = triangle_index_.at(i);
+				const Imath::V3f& v0 = (*vertex_)[index[0]];
+				const Imath::V3f& v1 = (*vertex_)[index[1]];
+				const Imath::V3f& v2 = (*vertex_)[index[2]];
+				Imath::V3f normal = (v0 - v1).cross(v2 - v1);
+				original_normal_[index[0]] += normal;
+				original_normal_[index[1]] += normal;
+				original_normal_[index[2]] += normal;
+			}
+			// normalize
+			for (size_t i = 0, isize = vertex_->size(); i < isize; ++i)
+			{
+				original_normal_[i].normalize();
+			}
 		}
 	}
 }

@@ -351,8 +351,13 @@ unsigned long UMAbcObject::max_time() const
 */
 void UMAbcObject::set_current_time(unsigned long time, bool recursive)
 {
-	if (parent()) {
+	if (parent())
+	{
 		mutable_global_transform() = local_transform() *  parent()->mutable_global_transform();
+	}
+	else
+	{
+		mutable_global_transform() = local_transform();
 	}
 	impl_->set_current_time(time, recursive);
 }
