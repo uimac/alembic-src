@@ -481,11 +481,11 @@ void UMAbcMesh::Impl::update_vertex_index(IPolyMeshSchema::Sample& sample)
 {
 	if (!is_valid()) return;
 
-	if (!faceset_names_.empty())
-	{
-		update_vertex_index_by_faceset(sample);
-		return;
-	}
+	//if (!faceset_names_.empty())
+	//{
+	//	update_vertex_index_by_faceset(sample);
+	//	return;
+	//}
 	
 	P3fArraySamplePtr vertex = sample.getPositions();
 	Int32ArraySamplePtr vertex_index = sample.getFaceIndices();
