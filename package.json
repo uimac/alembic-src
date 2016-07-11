@@ -16,7 +16,7 @@
 	],
 	"homepage": "ttps://github.com/uimac/alembic",
 	"scripts": {
-		"install": "node-gyp rebuild --target=0.36.5 --arch=x64 --dist-url=https://atom.io/download/atom-shell --msvs_version=2013"
+		"install": "node-gyp rebuild --target=1.2.6 --arch=x64 --dist-url=https://atom.io/download/atom-shell --msvs_version=2013"
 	},
 	"os" : [ "win32", "darwin" ],
 	"cpu" : [ "x64" ],
