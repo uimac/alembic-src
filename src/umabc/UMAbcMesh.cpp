@@ -281,7 +281,7 @@ void UMAbcMesh::Impl::update_normal()
 		{
 			original_normal_.resize(vertex_size);
 			const size_t vertex_index_size_ = vertex_index_->size();
-			for (size_t i = 0; i < normal_size; ++i)
+			for (size_t i = 0; i < vertex_index_size_; ++i)
 			{
 				const int index = (*vertex_index_)[i];
 				original_normal_[index] += normals[i];
