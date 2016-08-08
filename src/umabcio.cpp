@@ -245,6 +245,15 @@ public:
 		args.GetReturnValue().Set(result);
 	}
 
+	static Imath::M33f rotation_matrix(Imath::M44d mat)
+	{
+		Imath::removeScaling(mat);
+		return Imath::M33f(
+			mat[0][0], mat[0][1], mat[0][2],
+			mat[1][0], mat[1][1], mat[1][2],
+			mat[2][0], mat[2][1], mat[2][2]);
+	}
+
 	void get_mesh(const FunctionCallbackInfo<Value>& args) {
 		Isolate* isolate = Isolate::GetCurrent();
 		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
@@ -253,13 +262,29 @@ public:
 		std::string object_path(*utf8path);
 		Local<Object> result = Object::New(isolate);
 
+		bool is_apply_matrix = false;
+		if (args.Length() > 2 && args[2]->IsBoolean()) {
+			is_apply_matrix = args[2]->BooleanValue();
+		}
+
 		umabc::UMAbcMeshPtr mesh = std::dynamic_pointer_cast<umabc::UMAbcMesh>(scene->find_object(object_path));
 		if (mesh) {
 			if (mesh->vertex_size() > 0)
 			{
 				Local<ArrayBuffer> vertices = v8::ArrayBuffer::New(isolate, mesh->vertex_size() * sizeof(Imath::V3f));
 				ArrayBuffer::Contents contents = vertices->GetContents();
-				memcpy(contents.Data(), mesh->vertex(), mesh->vertex_size() * sizeof(Imath::V3f));
+
+				if (is_apply_matrix) {
+					float* data = static_cast<float*>(contents.Data());
+					for (int i = 0, isize = mesh->vertex_size(); i < isize; ++i) {
+						const Imath::V3f v = mesh->vertex()[i] * mesh->global_transform();
+						memcpy(&data[i * 3], &v, sizeof(Imath::V3f));
+					}
+				}
+				else 
+				{
+					memcpy(contents.Data(), mesh->vertex(), mesh->vertex_size() * sizeof(Imath::V3f));
+				}
 				result->Set(String::NewFromUtf8(isolate, "vertex"), Float32Array::New(vertices, 0, mesh->vertex_size() * 3));
 			}
 
@@ -267,7 +292,18 @@ public:
 			{
 				Local<ArrayBuffer> normals = v8::ArrayBuffer::New(isolate, mesh->normals().size() * sizeof(Imath::V3f));
 				ArrayBuffer::Contents contents = normals->GetContents();
-				memcpy(contents.Data(), &mesh->normals()[0], mesh->normals().size() * sizeof(Imath::V3f));
+
+				if (is_apply_matrix) {
+					float* data = static_cast<float*>(contents.Data());
+					for (int i = 0, isize = mesh->normals().size(); i < isize; ++i) {
+						const Imath::V3f n = mesh->normals()[i] * rotation_matrix(mesh->global_transform());
+						memcpy(&data[i * 3], &n, sizeof(Imath::V3f));
+					}
+				}
+				else
+				{
+					memcpy(contents.Data(), &mesh->normals()[0], mesh->normals().size() * sizeof(Imath::V3f));
+				}
 				result->Set(String::NewFromUtf8(isolate, "normal"), Float32Array::New(normals, 0, mesh->normals().size() * 3));
 			}
 
@@ -304,31 +340,68 @@ public:
 		std::string object_path(*utf8path);
 		Local<Object> result = Object::New(isolate);
 
+		bool is_apply_matrix = false;
+		if (args.Length() > 2 && args[2]->IsBoolean()) {
+			is_apply_matrix = args[2]->BooleanValue();
+		}
+
 		umabc::UMAbcPointPtr point = std::dynamic_pointer_cast<umabc::UMAbcPoint>(scene->find_object(object_path));
 		if (point)
 		{
 			if (point->position_size() > 0)
 			{
-				Local<ArrayBuffer> positions = v8::ArrayBuffer::New(isolate, point->position_size() * sizeof(Imath::V3f));
-				ArrayBuffer::Contents contents = positions->GetContents();
-				memcpy(contents.Data(), point->positions(), point->position_size() * sizeof(Imath::V3f));
-				result->Set(String::NewFromUtf8(isolate, "position"), Float32Array::New(positions, 0, point->position_size() * 3));
+				Local<Array> positions = Array::New(isolate, point->position_size() * 3);
+				//Local<ArrayBuffer> positions = v8::ArrayBuffer::New(isolate, point->position_size() * sizeof(Imath::V3f));
+				if (is_apply_matrix)
+				{
+					for (int i = 0, isize = point->position_size(); i < isize; ++i) {
+						Imath::V3f pos = point->positions()[i] * point->global_transform();
+						positions->Set(i * 3 + 0, Number::New(isolate, pos[0]));
+						positions->Set(i * 3 + 1, Number::New(isolate, pos[1]));
+						positions->Set(i * 3 + 2, Number::New(isolate, pos[2]));
+					}
+				}
+				else
+				{
+					for (int i = 0, isize = point->position_size(); i < isize; ++i) {
+						const Imath::V3f& pos = point->positions()[i];
+						positions->Set(i * 3 + 0, Number::New(isolate, pos[0]));
+						positions->Set(i * 3 + 1, Number::New(isolate, pos[1]));
+						positions->Set(i * 3 + 2, Number::New(isolate, pos[2]));
+					}
+				}
 			}
 
 			if (point->normal_size() > 0)
 			{
-				Local<ArrayBuffer> normals = v8::ArrayBuffer::New(isolate, point->normal_size() * sizeof(Imath::V3f));
-				ArrayBuffer::Contents contents = normals->GetContents();
-				memcpy(contents.Data(), &point->normals()[0], point->normal_size() * sizeof(Imath::V3f));
-				result->Set(String::NewFromUtf8(isolate, "normal"), Float32Array::New(normals, 0, point->normal_size() * 3));
+				Local<Array> normals = Array::New(isolate, point->position_size() * 3);
+				//Local<ArrayBuffer> normals = v8::ArrayBuffer::New(isolate, point->normal_size() * sizeof(Imath::V3f));
+				if (is_apply_matrix)
+				{
+					for (int i = 0, isize = point->normal_size(); i < isize; ++i) {
+						const Imath::V3f& normal = point->normals()[i] * rotation_matrix(point->global_transform());
+						normals->Set(i * 3 + 0, Number::New(isolate, normal[0]));
+						normals->Set(i * 3 + 1, Number::New(isolate, normal[1]));
+						normals->Set(i * 3 + 2, Number::New(isolate, normal[2]));
+					}
+				}
+				else
+				{
+					for (int i = 0, isize = point->normal_size(); i < isize; ++i) {
+						const Imath::V3f& normal = point->normals()[i];
+						normals->Set(i * 3 + 0, Number::New(isolate, normal[0]));
+						normals->Set(i * 3 + 1, Number::New(isolate, normal[1]));
+						normals->Set(i * 3 + 2, Number::New(isolate, normal[2]));
+					}
+				}
 			}
 
 			if (point->color_size() > 0)
 			{
-				Local<ArrayBuffer> normals = v8::ArrayBuffer::New(isolate, point->color_size() * sizeof(Imath::V3f));
-				ArrayBuffer::Contents contents = normals->GetContents();
+				Local<ArrayBuffer> colors = v8::ArrayBuffer::New(isolate, point->color_size() * sizeof(Imath::V3f));
+				ArrayBuffer::Contents contents = colors->GetContents();
 				memcpy(contents.Data(), &point->colors()[0], point->color_size() * sizeof(Imath::V3f));
-				result->Set(String::NewFromUtf8(isolate, "color"), Float32Array::New(normals, 0, point->color_size() * 3));
+				result->Set(String::NewFromUtf8(isolate, "color"), Float32Array::New(colors, 0, point->color_size() * 3));
 			}
 			assign_transform(result, point);
 		}
@@ -343,6 +416,11 @@ public:
 		std::string object_path(*utf8path);
 		Local<Object> result = Object::New(isolate);
 
+		bool is_apply_matrix = false;
+		if (args.Length() > 2 && args[2]->IsBoolean()) {
+			is_apply_matrix = args[2]->BooleanValue();
+		}
+
 		umabc::UMAbcCurvePtr curve = std::dynamic_pointer_cast<umabc::UMAbcCurve>(scene->find_object(object_path));
 		if (curve)
 		{
@@ -350,8 +428,20 @@ public:
 			{
 				Local<ArrayBuffer> positions = v8::ArrayBuffer::New(isolate, curve->position_size() * sizeof(Imath::V3f));
 				ArrayBuffer::Contents contents = positions->GetContents();
-				memcpy(contents.Data(), curve->positions(), curve->position_size() * sizeof(Imath::V3f));
-				result->Set(String::NewFromUtf8(isolate, "position"), Float32Array::New(positions, 0, curve->position_size() * 3));
+
+				float* data = static_cast<float*>(contents.Data());
+				if (is_apply_matrix) {
+					for (int i = 0, size = curve->position_size(); i < size; ++i) {
+						positions->Set(i * 3 + 0, Number::New(isolate, curve->positions()[i][0]));
+						positions->Set(i * 3 + 1, Number::New(isolate, curve->positions()[i][1]));
+						positions->Set(i * 3 + 2, Number::New(isolate, curve->positions()[i][2]));
+					}
+				}
+				else
+				{
+					memcpy(contents.Data(), curve->positions(), curve->position_size() * sizeof(Imath::V3f));
+					result->Set(String::NewFromUtf8(isolate, "position"), Float32Array::New(positions, 0, curve->position_size() * 3));
+				}
 			}
 
 			if (curve->vertex_count_list().size() > 0)
@@ -377,16 +467,32 @@ public:
 		std::string object_path(*utf8path);
 		Local<Object> result = Object::New(isolate);
 
+		bool is_apply_matrix = false;
+		if (args.Length() > 2 && args[2]->IsBoolean()) {
+			is_apply_matrix = args[2]->BooleanValue();
+		}
+
 		umabc::UMAbcNurbsPatchPtr nurbs = std::dynamic_pointer_cast<umabc::UMAbcNurbsPatch>(scene->find_object(object_path));
 		if (nurbs)
 		{
 			if (nurbs->position_size() > 0)
 			{
 				Local<Array> positions = Array::New(isolate, nurbs->position_size() * 3);
-				for (int i = 0, size = nurbs->position_size(); i < size; ++i) {
-					positions->Set(i * 3 + 0, Number::New(isolate, nurbs->positions()[i][0]));
-					positions->Set(i * 3 + 1, Number::New(isolate, nurbs->positions()[i][1]));
-					positions->Set(i * 3 + 2, Number::New(isolate, nurbs->positions()[i][2]));
+				if (is_apply_matrix) {
+					for (int i = 0, size = nurbs->position_size(); i < size; ++i) {
+						positions->Set(i * 3 + 0, Number::New(isolate, nurbs->positions()[i][0]));
+						positions->Set(i * 3 + 1, Number::New(isolate, nurbs->positions()[i][1]));
+						positions->Set(i * 3 + 2, Number::New(isolate, nurbs->positions()[i][2]));
+					}
+				}
+				else
+				{
+					for (int i = 0, size = nurbs->position_size(); i < size; ++i) {
+						Imath::V3f pos = nurbs->positions()[i] * nurbs->global_transform();
+						positions->Set(i * 3 + 0, Number::New(isolate, pos[0]));
+						positions->Set(i * 3 + 1, Number::New(isolate, pos[1]));
+						positions->Set(i * 3 + 2, Number::New(isolate, pos[2]));
+					}
 				}
 				result->Set(String::NewFromUtf8(isolate, "position"), positions);
 			}

@@ -61,9 +61,13 @@ bool UMAbcCamera::Impl::init(bool recursive)
 		schema.get(sample_);
 
 		// if not consistant, we get time
-		if (!schema.isConstant())
+		//if (!schema.isConstant())
 		{
 			TimeSamplingPtr time = schema.getTimeSampling();
+			unsigned long min = static_cast<unsigned long>(time->getSampleTime(0) * 1000);
+			unsigned long max = static_cast<unsigned long>(time->getSampleTime(num_samples - 1) * 1000);
+			self_reference()->set_min_time(min);
+			self_reference()->set_max_time(max);
 		}
 	}
 	return true;
@@ -71,10 +75,6 @@ bool UMAbcCamera::Impl::init(bool recursive)
 
 void UMAbcCamera::Impl::set_current_time(unsigned long time, bool recursive)
 {
-	if (!is_valid()) {
-		mutable_local_transform().makeIdentity();
-		return;
-	}
 }
 
 /**
@@ -117,6 +117,7 @@ bool UMAbcCamera::init(bool recursive, UMAbcObjectPtr parent)
  */
 void UMAbcCamera::set_current_time(unsigned long time, bool recursive)
 {
+	if (!impl_->is_valid()) return;
 	impl_->set_current_time(time, recursive);
 	UMAbcObject::set_current_time(time, recursive);
 }

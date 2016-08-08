@@ -123,7 +123,7 @@ void UMAbcXform::Impl::set_current_time(unsigned long time, bool recursive)
 		return;
 	}
 	
-	if (min_time() <= time && time <= max_time())
+	if (self_reference()->min_time() <= time && time <= self_reference()->max_time())
 	{
 		ISampleSelector selector(time / 1000.0, ISampleSelector::kNearIndex);
 		is_inherit_ = xform_->getSchema().getInheritsXforms(selector);
