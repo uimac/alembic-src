@@ -541,6 +541,34 @@ public:
 		args.GetReturnValue().Set(result);
 	}
 
+	void get_information(const FunctionCallbackInfo<Value>& args) {
+		Isolate* isolate = Isolate::GetCurrent();
+		umabc::UMAbcScenePtr scene = get_scene(isolate, args);
+
+		v8::String::Utf8Value utf8path(args[1]->ToString());
+		std::string object_path(*utf8path);
+		Local<Object> result = Object::New(isolate);
+
+		umabc::UMAbcObjectPtr obj = scene->find_object(object_path);
+		const unsigned int time = obj->current_time_ms();
+		bool has_changed = false;
+		if (obj->min_time() <= time && time <= obj->max_time()) {
+			has_changed = true;
+		}
+		result->Set(String::NewFromUtf8(isolate, "has_changed"), Boolean::New(isolate, has_changed));
+		result->Set(String::NewFromUtf8(isolate, "is_valid"), Boolean::New(isolate, obj->is_valid()));
+		result->Set(String::NewFromUtf8(isolate, "is_visible"), Boolean::New(isolate, obj->is_visible()));
+		
+		Local<Array> bbox = Array::New(isolate, 6);
+		for (int i = 0; i < 3; ++i) {
+			bbox->Set(i, Number::New(isolate, obj->box().min[i]));
+			bbox->Set(i + 3, Number::New(isolate, obj->box().max[i + 3]));
+		}
+		result->Set(String::NewFromUtf8(isolate, "bbox"), bbox);
+		
+		args.GetReturnValue().Set(result);
+	}
+
 	void dispose() {
 		SceneMap::iterator it = scene_map_.begin();
 		for (; it != scene_map_.end(); ++it) {
@@ -639,6 +667,11 @@ static void get_xform(const FunctionCallbackInfo<Value>& args)
 	UMAbcIO::instance().get_xform(args);
 }
 
+static void get_information(const FunctionCallbackInfo<Value>& args)
+{
+	UMAbcIO::instance().get_information(args);
+}
+
 static void dispose(void*)
 {
 	UMAbcIO::instance().dispose();
@@ -663,6 +696,7 @@ void Init(Handle<Object> exports) {
 	NODE_SET_METHOD(exports, "get_curve", get_curve);
 	NODE_SET_METHOD(exports, "get_camera", get_camera);
 	NODE_SET_METHOD(exports, "get_xform", get_xform);
+	NODE_SET_METHOD(exports, "get_information", get_information);
 }
 
 NODE_MODULE(umnode, Init)
