@@ -67,7 +67,7 @@ namespace umabc
 		Alembic::AbcGeom::Int32ArraySamplePtr vertex_index() { return vertex_index_; }
 		Alembic::AbcGeom::Int32ArraySamplePtr face_count() { return face_count_; }
 		Alembic::AbcGeom::IN3fGeomParam::Sample& normal() { return normal_; }
-		Alembic::AbcGeom::IV2fGeomParam::Sample& uv() { return uv_; }
+		std::vector<Imath::V2f>& uv() { return original_uv_; }
 		IndexList& triangle_index() { return triangle_index_; }
 		std::vector<Imath::V3f>& normals() { return original_normal_; }
 
@@ -125,9 +125,11 @@ namespace umabc
 		Alembic::AbcGeom::IV2fGeomParam::Sample uv_;
 
 		std::vector<Imath::V3f> original_normal_;
+		std::vector<Imath::V2f> original_uv_;
 		std::map<std::string, Alembic::AbcGeom::IFaceSetSchema::Sample> faceset_;
 
 		IndexList triangle_index_;
+		IndexList triangle_index_number_;
 
 		std::vector<std::string> faceset_name_list_;
 		std::vector<std::string> faceset_names_;
@@ -356,6 +358,44 @@ void UMAbcMesh::Impl::update_uv()
 			uv_param.getExpanded(uv_, selector);
 		}
 	}
+
+	Alembic::AbcGeom::UInt32ArraySamplePtr indices = uv_.getIndices();
+	if (indices && indices->size() > 0)
+	{
+		const int index_size = static_cast<int>(triangle_index_.size());
+		original_uv_.resize(index_size * 3);
+		for (size_t i = 0; i < index_size; ++i)
+		{
+			const Imath::V3i& index = triangle_index_number_[i];
+			original_uv_[i * 3 + 0] = uv_.getVals()->get()[indices->get()[index[0]]];
+			original_uv_[i * 3 + 1] = uv_.getVals()->get()[indices->get()[index[1]]];
+			original_uv_[i * 3 + 2] = uv_.getVals()->get()[indices->get()[index[2]]];
+		}
+	}
+	else if (uv_.getVals())
+	{
+		const int index_size = static_cast<int>(triangle_index_.size());
+		if (index_size > 0)
+		{
+			original_uv_.resize(index_size * 3);
+			for (size_t i = 0; i < index_size; ++i)
+			{
+				const Imath::V3i& index = triangle_index_number_[i];
+				original_uv_[i * 3 + 0] = uv_.getVals()->get()[index[0]];
+				original_uv_[i * 3 + 1] = uv_.getVals()->get()[index[1]];
+				original_uv_[i * 3 + 2] = uv_.getVals()->get()[index[2]];
+			}
+		}
+		else if (uv_.getVals()->size() == vertex_->size())
+		{
+			const int vertex_size = static_cast<int>(vertex_->size());
+			original_uv_.resize(vertex_size);
+			for (size_t i = 0; i < vertex_size; ++i)
+			{
+				original_uv_[i] = uv_.getVals()->get()[i];
+			}
+		}
+	}
 }
 
 /**
@@ -499,6 +539,7 @@ void UMAbcMesh::Impl::update_vertex_index(IPolyMeshSchema::Sample& sample)
 
 	// update index buffer
 	triangle_index_.clear();
+	triangle_index_number_.clear();
 	faceset_polycount_list_.clear();
 	const size_t vertex_size = vertex->size();
 	const size_t vertex_index_size_ = vertex_index_->size();
@@ -542,6 +583,12 @@ void UMAbcMesh::Impl::update_vertex_index(IPolyMeshSchema::Sample& sample)
 				(*vertex_index_)[face_index_begin + 1],
 				(*vertex_index_)[face_index_begin + 2]));
 
+			triangle_index_number_.push_back(
+				Imath::V3i(
+					face_index_begin + 0,
+					face_index_begin + 1,
+					face_index_begin + 2));
+
 			for (size_t i = 3; i < count; ++i)
 			{
 				triangle_index_.push_back(
@@ -549,6 +596,12 @@ void UMAbcMesh::Impl::update_vertex_index(IPolyMeshSchema::Sample& sample)
 						(*vertex_index_)[face_index_begin + 0],
 						(*vertex_index_)[face_index_begin + i-1],
 						(*vertex_index_)[face_index_begin + i]));
+
+				triangle_index_number_.push_back(
+					Imath::V3i(
+					face_index_begin + 0,
+					face_index_begin + i - 1,
+					face_index_begin + i));
 			}
 		}
 	}
@@ -747,7 +800,7 @@ unsigned int UMAbcMesh::vertex_size() const
 */
 const Imath::V2f * UMAbcMesh::uv() const
 {
-	return impl_->uv().getVals()->get();
+	return impl_->uv().data();
 }
 
 /**
@@ -755,10 +808,7 @@ const Imath::V2f * UMAbcMesh::uv() const
  */
 unsigned int UMAbcMesh::uv_size() const
 {
-	if (!impl_->uv().getVals()) {
-		return 0;
-	}
-	return static_cast<unsigned int>(impl_->uv().getVals()->size());
+	return static_cast<unsigned int>(impl_->uv().size());
 }
 
 /**
